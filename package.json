@@ -1,0 +1,19 @@
+{
+  "name": "com.pluginset.fairygui",
+  "displayName": "PluginSet FairyGUI",
+  "version": "0.0.1",
+  "unity": "2018.4",
+  "description": "FairyGUI from https://www.fairygui.com/product.html.",
+  "keywords": [
+    "pluginset",
+    "fairygui",
+    "fgui"
+  ],
+  "dependencies": {
+    "com.pluginset.core": "0.0.1"
+  },
+  "author": {
+    "name": "LyneXiao",
+    "email": "lixonxs@icloud.com"
+  }
+}

@@ -1,0 +1,110 @@
+using System.Collections;
+using System.Linq;
+using FairyGUI;
+using PluginSet.Core;
+using UnityEngine;
+
+namespace PluginSet.FGUI
+{
+    [PluginRegister]
+    public class PluginFairyGUI: PluginBase, IStartPlugin
+    {
+        public override string Name => "FairyGUI";
+
+        public int StartOrder => int.MinValue;
+        
+        public bool IsRunning { get; private set; }
+
+        private string[] _packagesInStartScene;
+
+        protected override void Init(PluginSetConfig config)
+        {
+            var setting = config.Get<PluginFairyGuiConfig>("FGUI");
+
+            var fguiObject = new GameObject("FairyGUI");
+            fguiObject.SetActive(false);
+
+            var uiConfig = fguiObject.AddComponent<UIConfig>();
+            uiConfig.Items = setting.UIConfigItems;
+
+            var uiScaler = fguiObject.AddComponent<UIContentScaler>();
+            uiScaler.scaleMode = setting.scaleMode;
+            uiScaler.screenMatchMode = setting.screenMatchMode;
+            uiScaler.designResolutionX = setting.designResolutionX;
+            uiScaler.designResolutionY = setting.designResolutionY;
+            uiScaler.fallbackScreenDPI = setting.fallbackScreenDPI;
+            uiScaler.defaultSpriteDPI = setting.defaultSpriteDPI;
+            uiScaler.constantScaleFactor = setting.constantScaleFactor;
+            uiScaler.ignoreOrientation = setting.ignoreOrientation;
+            
+            fguiObject.SetActive(true);
+            
+            UIConfig.bringWindowToFrontOnClick = setting.bringWindowToFrontOnClick;
+
+            _packagesInStartScene = setting.packagesInStartScene;
+            AddEventListener(PluginFairyGUIConst.NOTIFY_CHANGE_BRANCH, OnChangeBranch);
+        }
+        
+        public IEnumerator StartPlugin()
+        {
+            UIObjectFactory.SetLoaderExtension(typeof(GCustomLoader));
+            UIObjectFactory.SetLoader3DExtension(typeof(GCustomLoader3D));
+
+            IsRunning = true;
+            yield break;
+        }
+
+        public void DisposePlugin(bool isAppQuit = false)
+        {
+            IsRunning = false;
+            
+            if (!isAppQuit)
+            {
+                UIManager.CloseAll();
+                UIManager.Purge();
+            }
+            
+            UIWindow.ClearInstances();
+            UIObjectPool.ClearAll();
+            UIObjectFactory.Clear();
+            UnionPackage.ReleaseAll();
+            TweenManager.KillAllTweens();
+
+            if (isAppQuit || _packagesInStartScene == null || _packagesInStartScene.Length <= 0)
+            {
+                UIPackage.RemoveAllPackages();
+            }
+            else
+            {
+                var allPackages = UIPackage.GetPackages().Select(pkg => pkg.name).ToArray();
+                foreach (var pkg in allPackages)
+                {
+                    if (!_packagesInStartScene.Contains(pkg))
+                        UIPackage.RemovePackage(pkg);
+                }
+            }
+        }
+        
+        private void OnDestroy()
+        {
+            RemoveEventListener(PluginFairyGUIConst.NOTIFY_CHANGE_BRANCH, OnChangeBranch);
+            UIPackage.RemoveAllPackages();
+        }
+
+        private void OnChangeBranch(PluginsEventContext context)
+        {
+            ChangeFairyGuiBranch((string) context.Data);
+        }
+
+        private void ChangeFairyGuiBranch(string branch)
+        {
+            if (UIPackage.branch == branch)
+                return;
+
+            UIPackage.branch = branch;
+            UnionPackage.SetCurrentBranch(branch);
+            Stage.inst.BroadcastEvent(PluginFairyGUIConst.EVENT_ON_BRANCH_CHANGE, branch);
+            UIObjectPool.ClearAll();
+        }
+    }
+}
