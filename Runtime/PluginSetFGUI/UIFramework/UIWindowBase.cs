@@ -16,6 +16,7 @@ namespace PluginSet.FGUI
 
 #if FAIRYGUI_PUERTS
         public Action __beforeCreate;
+        public Action __beforeShown;
         public Action __beforeHide;
 #endif
         // 占用 GObject.data属性，不要再使用
@@ -60,6 +61,17 @@ namespace PluginSet.FGUI
 #endif
         }
         
+        protected virtual void BeforeShown()
+        {
+#if FAIRYGUI_TOLUA
+            CallLua("BeforeShown");
+#endif
+#if FAIRYGUI_PUERTS
+            if (__beforeShown != null)
+                __beforeShown();
+#endif
+        }
+        
         protected virtual void BeforeHide()
         {
 #if FAIRYGUI_TOLUA
@@ -85,6 +97,8 @@ namespace PluginSet.FGUI
 
         protected override void DoShowAnimation()
         {
+            BeforeShown();
+            
             if (EnterTransition != null)
             {
                 EnterTransition.Play(OnShown);

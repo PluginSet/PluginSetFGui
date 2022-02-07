@@ -33,13 +33,13 @@ namespace PluginSet.FGUI
             package.ReloadAssets();
         }
 
-        public void ReleasePackage(UIPackage package)
+        public void ReleasePackage(UIPackage package, bool remove = false)
         {
             // do nothing
 //            if (FairyGUI.StageEngine.beingQuit)
 //                return;
-//            
-//            UIPackage.RemovePackage(package.id);
+            if (remove)
+                UIPackage.RemovePackage(package.id);
         }
     }
 }

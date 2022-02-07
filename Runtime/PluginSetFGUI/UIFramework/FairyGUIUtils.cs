@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using FairyGUI;
+using LuaInterface;
 using PluginSet.Core;
 using UnityEngine;
 
@@ -9,6 +10,28 @@ namespace PluginSet.FGUI
     public static class FairyGUIUtils
     {
         private static IPackageLoader _packageLoader;
+
+        public delegate void OnPackageLoadedOrUnload(string packageName);
+        
+        public static void AddOnBranchChange(this GObject gObject, EventCallback0 callback)
+        {
+            gObject.AddEventListener(UnionPackage.EVENT_ON_BRANCH_CHANGE, callback);
+        }
+        
+        public static void AddOnBranchChange(this GObject gObject, EventCallback1 callback)
+        {
+            gObject.AddEventListener(UnionPackage.EVENT_ON_BRANCH_CHANGE, callback);
+        }
+        
+        public static void RemoveOnBranchChange(this GObject gObject, EventCallback0 callback)
+        {
+            gObject.RemoveEventListener(UnionPackage.EVENT_ON_BRANCH_CHANGE, callback);
+        }
+        
+        public static void RemoveBranchChange(this GObject gObject, EventCallback1 callback)
+        {
+            gObject.RemoveEventListener(UnionPackage.EVENT_ON_BRANCH_CHANGE, callback);
+        }
 
         public static void SetPackageLoad(IPackageLoader loader)
         {
@@ -37,10 +60,21 @@ namespace PluginSet.FGUI
             return new MultiAsyncOperations(handles);
         }
 
+#if FAIRYGUI_TOLUA
+        [NoToLua]
+#endif
+        public static event OnPackageLoadedOrUnload OnPackageLoadedHandle;
+#if FAIRYGUI_TOLUA
+        [NoToLua]
+#endif
+        public static event OnPackageLoadedOrUnload OnPackageUnloadHandle;
+
         public static UIPackage LoadPackage(string packageName)
         {
             CheckPackageLoader();
-            return _packageLoader.LoadPackage(packageName);
+            var pkg = _packageLoader.LoadPackage(packageName);
+            OnPackageLoadedHandle?.Invoke(packageName);
+            return pkg;
         }
 
         public static void ReloadPackage(UIPackage package)
@@ -49,17 +83,16 @@ namespace PluginSet.FGUI
             _packageLoader.ReloadPackage(package);
         }
 
-        public static void ReleasePackage(UIPackage package)
+        public static void ReleasePackage(UIPackage package, bool remove = false)
         {
             CheckPackageLoader();
-            _packageLoader.ReleasePackage(package);
+            if (remove)
+                OnPackageUnloadHandle?.Invoke(package.name);
+            _packageLoader.ReleasePackage(package, remove);
         }
 
         public static void SetDefaultFont(string fontName)
         {
-            if (string.IsNullOrEmpty(fontName))
-                return;
-                
             if (fontName.Equals(UIConfig.defaultFont))
                 return;
 

@@ -26,7 +26,19 @@ namespace PluginSet.FGUI
         
         public GCustomLoader()
         {
-            AddEventListener(PluginFairyGUIConst.EVENT_ON_BRANCH_CHANGE, CheckReload);
+            onAddedToStage.Add(__onAddToStage);
+            onRemovedFromStage.Add(__onRemoveFromStage);
+        }
+        
+        private void __onAddToStage()
+        {
+            CheckReload();
+            this.AddOnBranchChange(CheckReload);
+        }
+
+        private void __onRemoveFromStage()
+        {
+            this.RemoveOnBranchChange(CheckReload);
         }
 
         public GComponent AddBoardFrame()
@@ -41,19 +53,17 @@ namespace PluginSet.FGUI
             ((Container) displayObject).AddChildAt(_boardFrame.displayObject, 0);
             return _boardFrame;
         }
-        
-        public override void Dispose()
-        {
-            RemoveEventListeners(PluginFairyGUIConst.EVENT_ON_BRANCH_CHANGE);
-            base.Dispose();
-        }
 
         private void CheckReload()
         {
             if (_contentItem == null)
                 return;
 
-            if (_contentItem.getBranch() == _contentItem)
+            if (string.IsNullOrEmpty(_url))
+                return;
+            
+            var item = UIPackage.GetItemByURL(_url);
+            if (item?.getBranch() == _contentItem)
                 return;
             
             LoadContent();

@@ -14,8 +14,14 @@ namespace FairyGUI
         public delegate GComponent GComponentCreator();
         public delegate GLoader GLoaderCreator();
         public delegate GLoader3D GLoader3DCreator();
+        public delegate GTextField GTextFieldCreator();
+        public delegate GRichTextField GRichTextFieldCreator();
+        public delegate GTextInput GTextInputCreator();
 
         static Dictionary<string, GComponentCreator> packageItemExtensions = new Dictionary<string, GComponentCreator>();
+        static GRichTextFieldCreator richTextFieldCreator;
+        static GTextFieldCreator textFieldCreator;
+        static GTextInputCreator textInputCreator;
         static GLoaderCreator loaderCreator;
         static GLoader3DCreator loader3DCreator;
 
@@ -72,6 +78,21 @@ namespace FairyGUI
         {
             loaderCreator = () => { return (GLoader)Activator.CreateInstance(type); };
         }
+        
+        public static void SetTextFieldExtension(System.Type type)
+        {
+            textFieldCreator = () => { return (GTextField)Activator.CreateInstance(type); };
+        }
+        
+        public static void SetTextInputExtension(System.Type type)
+        {
+            textInputCreator = () => { return (GTextInput)Activator.CreateInstance(type); };
+        }
+        
+        public static void SetRichTextFieldExtension(System.Type type)
+        {
+            richTextFieldCreator = () => { return (GRichTextField)Activator.CreateInstance(type); };
+        }
 
         /// <summary>
         /// 
@@ -80,6 +101,21 @@ namespace FairyGUI
         public static void SetLoaderExtension(GLoaderCreator creator)
         {
             loaderCreator = creator;
+        }
+        
+        public static void SetTextFieldExtension(GTextFieldCreator creator)
+        {
+            textFieldCreator = creator;
+        }
+        
+        public static void SetTextInputExtension(GTextInputCreator creator)
+        {
+            textInputCreator = creator;
+        }
+        
+        public static void SetRichTextFieldExtension(GRichTextFieldCreator creator)
+        {
+            richTextFieldCreator = creator;
         }
         
         /// <summary>
@@ -107,11 +143,20 @@ namespace FairyGUI
                 pi.extensionCreator = null;
         }
 
+        public static void ClearExtension(string url)
+        {
+            if (packageItemExtensions.ContainsKey(url))
+                packageItemExtensions.Remove(url);
+        }
+
         public static void Clear()
         {
             packageItemExtensions.Clear();
             loaderCreator = null;
             loader3DCreator = null;
+            textFieldCreator = null;
+            textInputCreator = null;
+            richTextFieldCreator = null;
         }
 
         /// <summary>
@@ -168,12 +213,18 @@ namespace FairyGUI
                     return new GComponent();
 
                 case ObjectType.Text:
+                    if (textFieldCreator != null)
+                        return textFieldCreator();
                     return new GTextField();
 
                 case ObjectType.RichText:
+                    if (richTextFieldCreator != null)
+                        return richTextFieldCreator();
                     return new GRichTextField();
 
                 case ObjectType.InputText:
+                    if (textInputCreator != null)
+                        return textInputCreator();
                     return new GTextInput();
 
                 case ObjectType.Group:

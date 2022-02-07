@@ -5,12 +5,12 @@ namespace PluginSet.FGUI
 {
     public class PackageLoaderImpl: IPackageLoader
     {
-        protected virtual string GetResourceName(string packageName)
+        public virtual string GetResourceName(string packageName)
         {
             return packageName;
         }
         
-        protected virtual string GetBundleName(string packageName)
+        public virtual string GetBundleName(string packageName)
         {
             return packageName;
         }
@@ -52,15 +52,15 @@ namespace PluginSet.FGUI
                 package.ReloadAssets();
         }
 
-        public void ReleasePackage(UIPackage package)
+        public void ReleasePackage(UIPackage package, bool remove = false)
         {
             var manager = ResourcesManager.Instance;
             var bundleName = GetBundleName(package.name);
             if (manager.ExistsBundle(bundleName))
                 manager.ReleaseBundle(bundleName);
             
-            // dont remove package
-//            UIPackage.RemovePackage(package.id);
+            if (remove)
+                UIPackage.RemovePackage(package.id);
         }
     }
 }

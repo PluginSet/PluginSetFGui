@@ -1664,12 +1664,14 @@ namespace FairyGUI
             if (asset != null)
             {
                 var factory = DragonBones.UnityFactory.factory;
-                if (item.skeletonAsset != null && item.skeletonAsset is DragonBones.DragonBonesData o)
-                {
-                    factory.RemoveTextureAtlasData(asset.dataName);
-                    factory.RemoveDragonBonesData(o.name, false);
-                    item.skeletonAsset = null;
-                }
+                factory.RemoveDragonBonesData(asset.dataName, false);
+                factory.RemoveTextureAtlasData(asset.dataName, false);
+//                if (item.skeletonAsset != null && item.skeletonAsset is DragonBones.DragonBonesData o)
+//                {
+//                    factory.RemoveTextureAtlasData(asset.dataName);
+//                    factory.RemoveDragonBonesData(o.name, false);
+//                    item.skeletonAsset = null;
+//                }
             
                 foreach (var atlas in asset.textureAtlas)
                 {

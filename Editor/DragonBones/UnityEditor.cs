@@ -375,7 +375,7 @@ namespace DragonBones
                 var dataName = jsonObject.ContainsKey("name") ? jsonObject["name"] as string : "";
 
                 //先从缓存里面取
-                UnityDragonBonesData data = UnityFactory.factory.GetCacheUnityDragonBonesData(dataName);
+                UnityDragonBonesData data = null; //UnityFactory.factory.GetCacheUnityDragonBonesData(dataName);
 
                 //缓存中没有，从资源里面取
                 if (data == null)
@@ -437,7 +437,7 @@ namespace DragonBones
                 }
 
                 //
-                UnityFactory.factory.AddCacheUnityDragonBonesData(data);
+//                UnityFactory.factory.AddCacheUnityDragonBonesData(data);
 
                 AssetDatabase.SaveAssets();
                 return data;

@@ -1463,7 +1463,7 @@ namespace FairyGUI
                     else
                         child = UIObjectFactory.NewObject(type);
                 }
-
+                
                 child.underConstruct = true;
                 child.Setup_BeforeAdd(buffer, curPos);
                 child.InternalSetParent(this);

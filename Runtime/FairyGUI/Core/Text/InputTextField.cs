@@ -226,7 +226,7 @@ namespace FairyGUI
             {
                 _promptText = value;
                 if (!string.IsNullOrEmpty(_promptText))
-                    _decodedPromptText = UBBParser.inst.Parse(XMLUtils.EncodeString(_promptText));
+                    _decodedPromptText = DecodePromptText(_promptText);
                 else
                     _decodedPromptText = null;
                 UpdateText();
@@ -1443,6 +1443,11 @@ namespace FairyGUI
                 context.StopPropagation();
                 contextMenu.Show();
             }
+        }
+        
+        protected virtual string DecodePromptText(string pText)
+        {
+            return UBBParser.inst.Parse(XMLUtils.EncodeString(pText));
         }
     }
 

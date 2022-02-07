@@ -8,7 +8,6 @@ namespace FairyGUI
     /// </summary>
     public partial class GLoader3D : GObject, IAnimationGear, IColorGear
     {
-        string _url;
         AlignType _align;
         VertAlignType _verticalAlign;
         bool _autoSize;
@@ -22,6 +21,7 @@ namespace FairyGUI
         bool _updatingLayout;
         Color _color;
 
+        protected string _url;
         protected PackageItem _contentItem;
         protected GoWrapper _content;
 

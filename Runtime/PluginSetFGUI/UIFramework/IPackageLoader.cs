@@ -11,6 +11,6 @@ namespace PluginSet.FGUI
         
         void ReloadPackage(UIPackage package);
         
-        void ReleasePackage(UIPackage package);
+        void ReleasePackage(UIPackage package, bool remove = false);
     }
 }

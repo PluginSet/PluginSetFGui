@@ -42,7 +42,6 @@ namespace PluginSet.FGUI
             UIConfig.bringWindowToFrontOnClick = setting.bringWindowToFrontOnClick;
 
             _packagesInStartScene = setting.packagesInStartScene;
-            AddEventListener(PluginFairyGUIConst.NOTIFY_CHANGE_BRANCH, OnChangeBranch);
         }
         
         public IEnumerator StartPlugin()
@@ -67,7 +66,7 @@ namespace PluginSet.FGUI
             UIWindow.ClearInstances();
             UIObjectPool.ClearAll();
             UIObjectFactory.Clear();
-            UnionPackage.ReleaseAll();
+            UnionPackage.ReleaseAll(true);
             TweenManager.KillAllTweens();
 
             if (isAppQuit || _packagesInStartScene == null || _packagesInStartScene.Length <= 0)
@@ -87,24 +86,7 @@ namespace PluginSet.FGUI
         
         private void OnDestroy()
         {
-            RemoveEventListener(PluginFairyGUIConst.NOTIFY_CHANGE_BRANCH, OnChangeBranch);
             UIPackage.RemoveAllPackages();
-        }
-
-        private void OnChangeBranch(PluginsEventContext context)
-        {
-            ChangeFairyGuiBranch((string) context.Data);
-        }
-
-        private void ChangeFairyGuiBranch(string branch)
-        {
-            if (UIPackage.branch == branch)
-                return;
-
-            UIPackage.branch = branch;
-            UnionPackage.SetCurrentBranch(branch);
-            Stage.inst.BroadcastEvent(PluginFairyGUIConst.EVENT_ON_BRANCH_CHANGE, branch);
-            UIObjectPool.ClearAll();
         }
     }
 }

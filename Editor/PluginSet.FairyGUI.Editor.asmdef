@@ -3,7 +3,9 @@
     "references": [
         "PluginSet.Core",
         "PluginSet.FairyGUI",
-        "PluginSet.Core.Editor"
+        "PluginSet.Core.Editor",
+        "spine-unity",
+        "spine-unity-editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -14,5 +16,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }

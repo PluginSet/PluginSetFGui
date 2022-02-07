@@ -20,6 +20,8 @@ namespace PluginSet.FGUI
 
         private static string _defaultBranch = "DEFAULT";
 
+        public const string EVENT_ON_BRANCH_CHANGE = "onBranchChange";
+
         public static void SetDefaultBranch(string defaultBranch)
         {
             _defaultBranch = defaultBranch;
@@ -27,27 +29,34 @@ namespace PluginSet.FGUI
 
         public static void SetCurrentBranch(string branch)
         {
-            if (_currentBranch == branch)
-                return;
-
+            UIPackage.branch = branch;
+            
             _currentBranch = branch;
             _currentBranches = new [] {branch};
+
+            if (!_unionBranches.ContainsKey(branch))
+                branch = _defaultBranch;
+            
+            
             if (_unionBranches.TryGetValue(branch, out var map))
             {
                 _currentBranchMap = map;
             }
             else
             {
-                _currentBranchMap = _unionBranches[_defaultBranch] ?? EmptyMap;
+                _currentBranchMap = EmptyMap;
             }
 
             foreach (var pkg in _loadedPackages.Values)
             {
                 ApplyPackageBranch(pkg);
             }
+            
+            Stage.inst.BroadcastEvent(EVENT_ON_BRANCH_CHANGE, branch);
+            UIObjectPool.ClearAll();
         }
 
-        public static void AddUnionBranch(string mainPackageName, string branch, string branchPackageName)
+        public static void AddUnionBranch(string branch, string mainPackageName, string branchPackageName)
         {
             if (_unionBranches.TryGetValue(branch, out var branchMap))
             {
@@ -103,7 +112,7 @@ namespace PluginSet.FGUI
             package.DontRelease();
         }
 
-        public static void ReleaseAll(bool skipDontRelease = false)
+        public static void ReleaseAll(bool removePackages, bool skipDontRelease = false)
         {
             List<UnionPackage> notReleased = new List<UnionPackage>();
             foreach (var pkg in _loadedPackages.Values)
@@ -114,7 +123,7 @@ namespace PluginSet.FGUI
                     continue;
                 }
                 
-                pkg.ReleasePackages();
+                pkg.ReleasePackages(removePackages);
             }
             
             _loadedPackages.Clear();
@@ -130,6 +139,10 @@ namespace PluginSet.FGUI
             {
                 package.SetBranchPackage(branchName);
                 package.SetBranches(_currentBranches);
+            }
+            else
+            {
+                package.ClearBranchPackage();
             }
         }
         
@@ -159,7 +172,8 @@ namespace PluginSet.FGUI
 
         private void SetBranchPackage(string packageName)
         {
-            var isFull = SetBranchPackage(FairyGUIUtils.LoadPackage(packageName));
+            var branchPackage = FairyGUIUtils.LoadPackage(packageName);
+            var isFull = SetBranchPackage(branchPackage);
             if (isFull && _isMainLoaded)
             {
                 FairyGUIUtils.ReleasePackage(_mainPackage);
@@ -168,8 +182,18 @@ namespace PluginSet.FGUI
             else if (!isFull && !_isMainLoaded)
             {
                 FairyGUIUtils.ReloadPackage(_mainPackage);
+                FairyGUIUtils.ReloadPackage(_branchPackage);
                 _isMainLoaded = true;
             }
+        }
+
+        private void ClearBranchPackage()
+        {
+            if (_branchPackage == null)
+                return;
+            
+            SetBranchPackage(_mainPackage);
+            FairyGUIUtils.ReloadPackage(_mainPackage);
         }
 
         private void Retain()
@@ -230,9 +254,9 @@ namespace PluginSet.FGUI
         {
             foreach (var item in _mainPackage.GetItems())
             {
-                if (item.exported && !string.IsNullOrEmpty(item.name))
+                if (!string.IsNullOrEmpty(item.name))
                 {
-                    UpdateItemBranches(item, item.branches, item.id);
+                    ClearItemBranches(item);
                 }
             }
         }
@@ -241,6 +265,11 @@ namespace PluginSet.FGUI
         {
             if (branches == null || branches[0] != itemId)
                 item.branches = new[] {itemId};
+        }
+
+        private void ClearItemBranches(PackageItem item)
+        {
+            item.branches = null;
         }
 
         /// <summary>
@@ -267,18 +296,18 @@ namespace PluginSet.FGUI
             bool isFull = true;
             foreach (var item in _mainPackage.GetItems())
             {
-                if (item.exported && !string.IsNullOrEmpty(item.name))
+                if (!string.IsNullOrEmpty(item.name))
                 {
                     var branchItem = branchPackage.GetItemByName(item.name);
-                    if (branchItem == null)
-                    {
-                        UpdateItemBranches(item, item.branches, item.id);
-                        isFull = false;
-                    }
-                    else
+                    if (branchItem != null && branchItem.exported)
                     {
                         UpdateItemBranches(item, item.branches, branchItem.id);
                         AddVirtual(branchItem);
+                    }
+                    else
+                    {
+                        ClearItemBranches(item);
+                        isFull = false;
                     }
                 }
             }
@@ -288,20 +317,20 @@ namespace PluginSet.FGUI
             return isFull;
         }
 
-        private void ReleasePackage(UIPackage package)
+        private void ReleasePackage(UIPackage package, bool remove = false)
         {
-            FairyGUIUtils.ReleasePackage(package);
+            FairyGUIUtils.ReleasePackage(package, remove);
         }
 
-        private void ReleasePackages()
+        private void ReleasePackages(bool remove = false)
         {
             if (_branchPackage != null)
             {
-                ReleasePackage(_branchPackage);
+                ReleasePackage(_branchPackage, remove);
                 _branchPackage = null;
             }
             
-            ReleasePackage(_mainPackage);
+            ReleasePackage(_mainPackage, remove);
             _mainPackage = null;
         }
         

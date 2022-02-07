@@ -12,7 +12,7 @@ namespace FairyGUI
         /// <summary>
         /// 
         /// </summary>
-        public InputTextField inputTextField { get; private set; }
+        public InputTextField inputTextField { get; protected set; }
 
         EventListener _onChanged;
         EventListener _onSubmit;

@@ -26,7 +26,7 @@ namespace PluginSet.FGUI
         
         public GCustomLoader3D()
         {
-            AddEventListener(PluginFairyGUIConst.EVENT_ON_BRANCH_CHANGE, CheckReload);
+            this.AddOnBranchChange(CheckReload);
             onAddedToStage.Add(LoadContent);
             onRemovedFromStage.Add(ClearContent);
         }
@@ -35,7 +35,7 @@ namespace PluginSet.FGUI
         {
             onAddedToStage.Remove(LoadContent);
             onRemovedFromStage.Remove(ClearContent);
-            RemoveEventListeners(PluginFairyGUIConst.EVENT_ON_BRANCH_CHANGE);
+            this.RemoveOnBranchChange(CheckReload);
             base.Dispose();
         }
         
@@ -44,7 +44,11 @@ namespace PluginSet.FGUI
             if (_contentItem == null)
                 return;
 
-            if (_contentItem.getBranch() == _contentItem)
+            if (string.IsNullOrEmpty(_url))
+                return;
+            
+            var item = UIPackage.GetItemByURL(_url);
+            if (item?.getBranch() == _contentItem)
                 return;
             
             LoadContent();

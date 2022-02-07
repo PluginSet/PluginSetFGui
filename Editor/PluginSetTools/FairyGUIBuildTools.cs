@@ -21,20 +21,22 @@ namespace PluginSet.FGUI.Editor
             {
                 foreach (var path in buildParams.FairyGUIPaths)
                 {
-                    CheckAndCreateDragonBoneDatas(path);
+                    CheckAndCreateBoneDatas(path);
                 }
             }
         }
         
-        public static void CheckAndCreateDragonBoneDatas(string fguiPath)
+        public static void CheckAndCreateBoneDatas(string fguiPath)
         {
-#if FAIRYGUI_DRAGONBONES
             if (string.IsNullOrEmpty(fguiPath))
                 return;
 
+#if FAIRYGUI_DRAGONBONES
             DragonBones.UnityEditor.CreateUnityDatas(Path.Combine(Application.dataPath, fguiPath));
-            AssetDatabase.Refresh();
 #endif
+#if FAIRYGUI_SPINE
+#endif
+            AssetDatabase.Refresh();
         }
 
         [OnSyncEditorSetting]
@@ -57,7 +59,7 @@ namespace PluginSet.FGUI.Editor
             {
                 foreach (var path in buildParams.FairyGUIPaths)
                 {
-                    CheckAndCreateDragonBoneDatas(path);
+                    CheckAndCreateBoneDatas(path);
                 }
             }
             
