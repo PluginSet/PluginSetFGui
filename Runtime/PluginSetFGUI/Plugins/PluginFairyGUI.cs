@@ -56,20 +56,18 @@ namespace PluginSet.FGUI
         public void DisposePlugin(bool isAppQuit = false)
         {
             IsRunning = false;
+
+            if (isAppQuit) return;
             
-            if (!isAppQuit)
-            {
-                UIManager.CloseAll();
-                UIManager.Purge();
-            }
-            
+            UIManager.CloseAll();
+            UIManager.Purge();
             UIWindow.ClearInstances();
             UIObjectPool.ClearAll();
             UIObjectFactory.Clear();
             UnionPackage.ReleaseAll(true);
             TweenManager.KillAllTweens();
 
-            if (isAppQuit || _packagesInStartScene == null || _packagesInStartScene.Length <= 0)
+            if (_packagesInStartScene == null || _packagesInStartScene.Length <= 0)
             {
                 UIPackage.RemoveAllPackages();
             }
@@ -82,11 +80,6 @@ namespace PluginSet.FGUI
                         UIPackage.RemovePackage(pkg);
                 }
             }
-        }
-        
-        private void OnDestroy()
-        {
-            UIPackage.RemoveAllPackages();
         }
     }
 }
