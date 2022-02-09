@@ -32,7 +32,7 @@ namespace PluginSet.FGUI.Editor
                 return;
 
 #if FAIRYGUI_DRAGONBONES
-            DragonBones.UnityEditor.CreateUnityDatas(Path.Combine(Application.dataPath, fguiPath));
+            DragonBones.UnityEditor.CreateUnityDatas(Path.Combine(Application.dataPath, "..", fguiPath));
 #endif
 #if FAIRYGUI_SPINE
 #endif
