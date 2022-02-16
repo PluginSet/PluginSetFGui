@@ -14,9 +14,14 @@ namespace PluginSet.FGUI.Editor
         [UnityEditor.Callbacks.PostProcessScene]
         public static void BeforeAppRun()
         {
-            var buildChannels = EditorSetting.CurrentBuildChannel;
+            BuildChannels buildChannels;
+            var context = BuildProcessorContext.Current;
+            if (context != null)
+                buildChannels = context.BuildChannels;
+            else
+                buildChannels = EditorSetting.CurrentBuildChannel;
+            
             var buildParams = buildChannels.Get<PluginSetFGUIBuildParams>("FGUI");
-
             if (buildParams.EnableDragon && buildParams.FairyGUIPaths != null)
             {
                 foreach (var path in buildParams.FairyGUIPaths)
