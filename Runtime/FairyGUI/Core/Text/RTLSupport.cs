@@ -613,7 +613,7 @@ namespace FairyGUI
             mapping.Remove(0x6BE);
             mapping.Add(0x6BE, new char[4] { (char)0xFBAA, (char)0xFBAB, (char)0xFBAC, (char)0xFBAD });
             mapping.Remove(0x649);
-            mapping.Add(0x649, new char[4] { (char)0xFEEF, (char)0xFEF0, (char)0xFEE8, (char)0xFEE9 });    // AlefMagsora
+            mapping.Add(0x649, new char[4] { (char)0xFEEF, (char)0xFEF0, (char)0xFBE8, (char)0xFBE9 });    // AlefMagsora
             mapping.Remove(0x64A);
             mapping.Add(0x64A, new char[4] { (char)0xFEF1, (char)0xFEF3, (char)0xFEF3, (char)0xFEF3 });    // Ya
 //            mapping.Remove(0x626);
