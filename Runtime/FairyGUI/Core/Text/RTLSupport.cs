@@ -601,6 +601,15 @@ namespace FairyGUI
 
             mapping.Add(0x6BE, new char[4] { (char)0xFEE9, (char)0xFEEA, (char)0xFEEB, (char)0xFEEC });
             mapping.Add(0x6CC, new char[4] { (char)0xFBFC, (char)0xFBFD, (char)0xFBFE, (char)0xFBFF });
+            
+            mapping.Add(0x6D5, new char[4] { (char)0xFEE9, (char)0xFEEA, (char)0xFEE9, (char)0xFEEA });   // Uy AE
+            mapping.Add(0x6AD, new char[4] { (char)0xFBD3, (char)0xFBD4, (char)0xFBD5, (char)0xFBD6 });   // Uy NG
+            mapping.Add(0x6C6, new char[4] { (char)0xFBD9, (char)0xFBDA, (char)0xFBD9, (char)0xFBDA });   // Uy OE
+            mapping.Add(0x6C7, new char[4] { (char)0xFBD7, (char)0xFBD8, (char)0xFBD7, (char)0xFBD8 });   // Uy U
+            mapping.Add(0x6C8, new char[4] { (char)0xFBDB, (char)0xFBDC, (char)0xFBDB, (char)0xFBDC });   // Uy YU
+            mapping.Add(0x6CB, new char[4] { (char)0xFBDE, (char)0xFBDF, (char)0xFBDE, (char)0xFBDF });   // Uy VE
+            mapping.Add(0x6D0, new char[4] { (char)0xFBE4, (char)0xFBE5, (char)0xFBE6, (char)0xFBE7 });   // Uy E
+            
         }
 
         // 是否中立方向字符
