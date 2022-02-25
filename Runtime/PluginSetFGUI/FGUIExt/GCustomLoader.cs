@@ -65,7 +65,8 @@ namespace PluginSet.FGUI
             var item = UIPackage.GetItemByURL(_url);
             if (item?.getBranch() == _contentItem)
                 return;
-            
+
+            component?.DispatchEvent("ReloadBranch");
             LoadContent();
         }
 
