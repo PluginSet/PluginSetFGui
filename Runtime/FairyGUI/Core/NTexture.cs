@@ -51,6 +51,11 @@ namespace FairyGUI
         /// 
         /// </summary>
         public DestroyMethod destroyMethod;
+        
+        /// <summary>
+        /// 贴图为空
+        /// </summary>
+        public bool IsEmptyTexture { get; set; }
 
         /// <summary>
         /// This event will trigger when texture reloaded and size changed.
@@ -92,7 +97,10 @@ namespace FairyGUI
             get
             {
                 if (_empty == null)
+                {
                     _empty = new NTexture(CreateEmptyTexture());
+                    _empty.IsEmptyTexture = true;
+                }
 
                 return _empty;
             }

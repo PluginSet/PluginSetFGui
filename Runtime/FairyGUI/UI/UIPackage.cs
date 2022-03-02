@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using FairyGUI.Utils;
 #if UNITY_EDITOR
@@ -41,10 +42,11 @@ namespace FairyGUI
         /// </summary>
         /// <param name="name">Resource name without extension.</param>
         /// <param name="extension">Resource extension. e.g. '.png' '.wav'</param>
+        /// <param name="itemBranch">Target item is include in which branch</param>
         /// <param name="type">Resource type. e.g. 'Texture' 'AudioClip'</param>
         /// <param name="destroyMethod">How to destroy this resource.</param>
         /// <returns></returns>
-        public delegate object LoadResource(string name, string extension, System.Type type, out DestroyMethod destroyMethod);
+        public delegate object LoadResource(string name, string extension, string itemBranch, System.Type type, out DestroyMethod destroyMethod);
 
         /// <summary>
         /// A async load resource callback. After loaded, you should call item.owner.SetItemAsset.
@@ -54,7 +56,7 @@ namespace FairyGUI
         /// <param name="type">Resource type. e.g. 'Texture' 'AudioClip'</param>
         /// <param name="item">Resource item object.</param>
         /// <returns></returns>
-        public delegate void LoadResourceAsync(string name, string extension, System.Type type, PackageItem item);
+        public delegate void LoadResourceAsync(string name, string extension, string itemBranch, System.Type type, PackageItem item);
 
         /// <summary>
         /// 
@@ -96,14 +98,14 @@ namespace FairyGUI
         public const string URL_PREFIX = "ui://";
 
 #if UNITY_EDITOR
-        static LoadResource _loadFromAssetsPath = (string name, string extension, System.Type type, out DestroyMethod destroyMethod) =>
+        static LoadResource _loadFromAssetsPath = (string name, string extension, string itemBranch, System.Type type, out DestroyMethod destroyMethod) =>
         {
             destroyMethod = DestroyMethod.Unload;
             return AssetDatabase.LoadAssetAtPath(name + extension, type);
         };
 #endif
 
-        static LoadResource _loadFromResourcesPath = (string name, string extension, System.Type type, out DestroyMethod destroyMethod) =>
+        static LoadResource _loadFromResourcesPath = (string name, string extension, string itemBranch, System.Type type, out DestroyMethod destroyMethod) =>
         {
             destroyMethod = DestroyMethod.Unload;
             return Resources.Load(name, type);
@@ -306,7 +308,7 @@ namespace FairyGUI
                 return _packageInstById[assetPath];
 
             DestroyMethod dm;
-            TextAsset asset = (TextAsset)loadFunc(assetPath + "_fui", ".bytes", typeof(TextAsset), out dm);
+            TextAsset asset = (TextAsset)loadFunc(assetPath + "_fui", ".bytes", null, typeof(TextAsset), out dm);
             if (asset == null)
             {
                 if (Application.isPlaying)
@@ -858,7 +860,10 @@ namespace FairyGUI
                 {
                     string str = buffer.ReadS();//branch
                     if (str != null)
+                    {
                         pi.name = str + "/" + pi.name;
+                        pi.branch = str; // 标记所属分支
+                    }
 
                     int branchCnt = buffer.ReadByte();
                     if (branchCnt > 0)
@@ -1020,10 +1025,14 @@ namespace FairyGUI
             for (int i = 0; i < cnt; i++)
             {
                 PackageItem pi = _items[i];
+                var pb = pi.branch;
+                if (!string.IsNullOrEmpty(pb) && _branch != pb)
+                    continue;
+                
                 if (pi.type == PackageItemType.Atlas)
                 {
-                    if (pi.texture != null && pi.texture.nativeTexture == null)
-                        LoadAtlas(pi);
+                    if (pi.texture != null && (pi.texture.nativeTexture == null || pi.texture.IsEmptyTexture))
+                        LoadAtlas(pi, _branch);
                 }
                 else if (pi.type == PackageItemType.Sound)
                 {
@@ -1034,8 +1043,6 @@ namespace FairyGUI
                 {
                     if (pi.skeletonAsset != null)
                     {
-                        // TODO
-                        pi.skeletonAsset = null;
                         LoadSpine(pi);
                     }
                 }
@@ -1278,14 +1285,15 @@ namespace FairyGUI
             }
         }
 
-        void LoadAtlas(PackageItem item)
+        void LoadAtlas(PackageItem item, string itemBranch = null)
         {
             string ext = Path.GetExtension(item.file);
+            itemBranch = item.branch ?? itemBranch;
             string fileName = item.file.Substring(0, item.file.Length - ext.Length);
 
             if (_loadAsyncFunc != null)
             {
-                _loadAsyncFunc(fileName, ext, typeof(Texture), item);
+                _loadAsyncFunc(fileName, ext, itemBranch, typeof(Texture), item);
                 if (item.texture == null)
                     item.texture = new NTexture(null, new Rect(0, 0, item.width, item.height));
                 item.texture.destroyMethod = DestroyMethod.None;
@@ -1306,7 +1314,7 @@ namespace FairyGUI
                     dm = DestroyMethod.None;
                 }
                 else
-                    tex = (Texture)_loadFunc(fileName, ext, typeof(Texture), out dm);
+                    tex = (Texture)_loadFunc(fileName, ext, itemBranch, typeof(Texture), out dm);
 
                 if (tex == null)
                     Debug.LogWarning("FairyGUI: texture '" + item.file + "' not found in " + this.name);
@@ -1331,10 +1339,11 @@ namespace FairyGUI
                             alphaTex = _resBundle.LoadAsset<Texture2D>(fileName);
                     }
                     else
-                        alphaTex = (Texture2D)_loadFunc(fileName, ext, typeof(Texture2D), out dm);
+                        alphaTex = (Texture2D)_loadFunc(fileName, ext, itemBranch, typeof(Texture2D), out dm);
                 }
 
-                if (tex == null)
+                var isEmptyTexture = tex == null;
+                if (isEmptyTexture)
                 {
                     tex = NTexture.CreateEmptyTexture();
                     dm = DestroyMethod.Destroy;
@@ -1343,6 +1352,9 @@ namespace FairyGUI
                 if (item.texture == null)
                 {
                     item.texture = new NTexture(tex, alphaTex, (float)tex.width / item.width, (float)tex.height / item.height);
+                    if (isEmptyTexture)
+                        item.texture.IsEmptyTexture = true;
+                    
                     item.texture.onRelease += (NTexture t) =>
                     {
                         if (onReleaseResource != null)
@@ -1350,7 +1362,11 @@ namespace FairyGUI
                     };
                 }
                 else
+                {
                     item.texture.Reload(tex, alphaTex);
+                    if (isEmptyTexture)
+                        item.texture.IsEmptyTexture = true;
+                }
                 item.texture.destroyMethod = dm;
             }
         }
@@ -1360,7 +1376,9 @@ namespace FairyGUI
             AtlasSprite sprite;
             if (_sprites.TryGetValue(item.id, out sprite))
             {
-                NTexture atlas = (NTexture)GetItemAsset(sprite.atlas);
+                if (sprite.atlas.texture == null)
+                    LoadAtlas(sprite.atlas, item.branch);
+                NTexture atlas = sprite.atlas.texture;
                 if (atlas.width == sprite.rect.width && atlas.height == sprite.rect.height)
                     item.texture = atlas;
                 else
@@ -1377,7 +1395,7 @@ namespace FairyGUI
 
             if (_loadAsyncFunc != null)
             {
-                _loadAsyncFunc(fileName, ext, typeof(AudioClip), item);
+                _loadAsyncFunc(fileName, ext, item.branch, typeof(AudioClip), item);
                 if (item.audioClip == null)
                     item.audioClip = new NAudioClip(null);
                 item.audioClip.destroyMethod = DestroyMethod.None;
@@ -1395,7 +1413,7 @@ namespace FairyGUI
                 }
                 else
                 {
-                    audioClip = (AudioClip)_loadFunc(fileName, ext, typeof(AudioClip), out dm);
+                    audioClip = (AudioClip)_loadFunc(fileName, ext, item.branch, typeof(AudioClip), out dm);
                 }
 
                 if (item.audioClip == null)
@@ -1423,7 +1441,7 @@ namespace FairyGUI
             else
             {
                 DestroyMethod dm;
-                object ret = _loadFunc(fileName, ext, typeof(TextAsset), out dm);
+                object ret = _loadFunc(fileName, ext, item.branch, typeof(TextAsset), out dm);
                 if (ret == null)
                     return null;
                 if (ret is byte[])
@@ -1631,7 +1649,7 @@ namespace FairyGUI
             else
             {
                 DestroyMethod dm;
-                asset = (Spine.Unity.SkeletonDataAsset)_loadFunc(fileName + "_SkeletonData", ".asset", typeof(Spine.Unity.SkeletonDataAsset), out dm);
+                asset = (Spine.Unity.SkeletonDataAsset)_loadFunc(fileName + "_SkeletonData", ".asset", item.branch, typeof(Spine.Unity.SkeletonDataAsset), out dm);
             }
             if (asset == null)
                 Debug.LogWarning("FairyGUI: Failed to load " + fileName);
@@ -1659,11 +1677,12 @@ namespace FairyGUI
             else
             {
                 DestroyMethod dm;
-                asset = (DragonBones.UnityDragonBonesData)_loadFunc(fileName + "_Data", ".asset", typeof(DragonBones.UnityDragonBonesData), out dm);
+                asset = (DragonBones.UnityDragonBonesData)_loadFunc(fileName + "_Data", ".asset", item.branch, typeof(DragonBones.UnityDragonBonesData), out dm);
             }
             if (asset != null)
             {
                 var factory = DragonBones.UnityFactory.factory;
+                asset.dataName = item.name;
                 factory.RemoveDragonBonesData(asset.dataName, false);
                 factory.RemoveTextureAtlasData(asset.dataName, false);
 //                if (item.skeletonAsset != null && item.skeletonAsset is DragonBones.DragonBonesData o)
@@ -1690,17 +1709,29 @@ namespace FairyGUI
 #endif
         }
         
-        public void SetBranches(string[] branches)
+        public int ApplyBranches(string branchName)
         {
-            _branches = branches;
-            if (string.IsNullOrEmpty(branch) || _branches == null)
-                   _branchIndex = -1;
+            if (_branches == null)
+            {
+                _branches = new[] {branchName};
+                return 0;
+            }
+            else if (_branches.Contains(branchName))
+            {
+                return Array.IndexOf(_branches, branchName);
+            }
             else
-                _branchIndex = Array.IndexOf(_branches, branch);
+            {
+                List<string> temp = new List<string>(_branches);
+                temp.Add(branchName);
+                _branches = temp.ToArray();
+                return _branches.Length - 1;
+            }
         }
         
-        public void VirtualAdd(PackageItem item)
+        public void VirtualAdd(PackageItem item, string itemBranch)
         {
+            item.branch = itemBranch;
             _itemsById[item.id] = item;
         }
         

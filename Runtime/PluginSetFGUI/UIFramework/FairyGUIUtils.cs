@@ -83,6 +83,12 @@ namespace PluginSet.FGUI
             _packageLoader.ReloadPackage(package);
         }
 
+        public static void OnPackageBranchChanged(UIPackage package, string fromBranch, string toBranch)
+        {
+            CheckPackageLoader();
+            _packageLoader.OnBranchChanged(package, fromBranch, toBranch);
+        }
+
         public static void ReleasePackage(UIPackage package, bool remove = false)
         {
             CheckPackageLoader();

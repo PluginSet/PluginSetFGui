@@ -56,17 +56,6 @@ namespace PluginSet.FGUI
             _openArgs = args;
         }
 
-        protected virtual void InitBinders()
-        {
-            
-        }
-
-        protected override void BeforeCreate()
-        {
-            InitBinders();
-            base.BeforeCreate();
-        }
-
         protected override void BeforeHide()
         {
             base.BeforeHide();

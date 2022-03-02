@@ -13,6 +13,8 @@ namespace FairyGUI
         public PackageItemType type;
         public ObjectType objectType;
 
+        public string branch;
+        
         public string id;
         public string name;
         public int width;

@@ -1,3 +1,5 @@
+
+using System.Linq;
 #if FAIRYGUI_DRAGONBONES
 
 /**
@@ -120,6 +122,11 @@ namespace DragonBones
             }
 
             _CreateUnityDataForAssets(dragonBeonAssetPaths);
+        }
+
+        public static void CreateUnityData(IEnumerable<string> assetsPaths)
+        {
+            _CreateUnityDataForAssets(assetsPaths.Select(path => Global.GetSubPath(".", Global.GetFullPath(path))));
         }
 
         private static void _CreateUnityDataForAssets(IEnumerable<string> assetPaths)

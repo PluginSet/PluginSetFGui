@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FairyGUI;
 
@@ -13,12 +14,10 @@ namespace PluginSet.FGUI
         private static Dictionary<string, Dictionary<string, string>> _unionBranches = new Dictionary<string, Dictionary<string, string>>();
         private static readonly Dictionary<string, string> EmptyMap = new Dictionary<string, string>();
 
-        private static string _currentBranch;
-        private static string[] _currentBranches;
         private static Dictionary<string, string> _currentBranchMap = EmptyMap;
         private static List<string> _allBranchPackages = new List<string>();
 
-        private static string _defaultBranch = "DEFAULT";
+        private static string _defaultBranch = string.Empty;
 
         public const string EVENT_ON_BRANCH_CHANGE = "onBranchChange";
 
@@ -29,14 +28,8 @@ namespace PluginSet.FGUI
 
         public static void SetCurrentBranch(string branch)
         {
-            UIPackage.branch = branch;
-            
-            _currentBranch = branch;
-            _currentBranches = new [] {branch};
-
-            if (!_unionBranches.ContainsKey(branch))
-                branch = _defaultBranch;
-            
+            if (branch == _defaultBranch)
+                branch = string.Empty;
             
             if (_unionBranches.TryGetValue(branch, out var map))
             {
@@ -47,6 +40,9 @@ namespace PluginSet.FGUI
                 _currentBranchMap = EmptyMap;
             }
 
+            // 先设置UIPackage.branch再调用ApplyPackageBranch，ApplyPackageBranch方法依赖UIPackage.branch的当前值
+            UIPackage.branch = branch;
+            
             foreach (var pkg in _loadedPackages.Values)
             {
                 ApplyPackageBranch(pkg);
@@ -135,21 +131,21 @@ namespace PluginSet.FGUI
 
         private static void ApplyPackageBranch(UnionPackage package)
         {
-            if (_currentBranchMap.TryGetValue(package._name, out var branchName))
+            if (_currentBranchMap.TryGetValue(package._name, out var branchPackageName))
             {
-                package.SetBranchPackage(branchName);
-                package.SetBranches(_currentBranches);
+                package.SetBranchPackage(UIPackage.branch, branchPackageName);
             }
             else
             {
-                package.ClearBranchPackage();
+                package.SetBranchPackage(UIPackage.branch);
             }
         }
         
         private bool _isMainLoaded;
         private string _name;
         private UIPackage _mainPackage;
-        
+
+        private string _branch;
         private UIPackage _branchPackage;
 
         private int _retainCount = 0;
@@ -167,16 +163,22 @@ namespace PluginSet.FGUI
             _name = name;
             _mainPackage = mainPackage;
             _isMainLoaded = isMainLoaded;
-            ResetAllBranches();
         }
 
-        private void SetBranchPackage(string packageName)
+        private void SetBranchPackage(string branch)
+        {
+            SetBranchPackageInternal(branch, null);
+            FairyGUIUtils.ReloadPackage(_mainPackage);
+        }
+
+        private void SetBranchPackage(string branch, string packageName)
         {
             var branchPackage = FairyGUIUtils.LoadPackage(packageName);
-            var isFull = SetBranchPackage(branchPackage);
+            var isFull = SetBranchPackageInternal(branch, branchPackage);
             if (isFull && _isMainLoaded)
             {
                 FairyGUIUtils.ReleasePackage(_mainPackage);
+                FairyGUIUtils.ReloadPackage(_branchPackage);
                 _isMainLoaded = false;
             }
             else if (!isFull && !_isMainLoaded)
@@ -185,15 +187,6 @@ namespace PluginSet.FGUI
                 FairyGUIUtils.ReloadPackage(_branchPackage);
                 _isMainLoaded = true;
             }
-        }
-
-        private void ClearBranchPackage()
-        {
-            if (_branchPackage == null)
-                return;
-            
-            SetBranchPackage(_mainPackage);
-            FairyGUIUtils.ReloadPackage(_mainPackage);
         }
 
         private void Retain()
@@ -243,56 +236,87 @@ namespace PluginSet.FGUI
             if (_branchPackage != null)
                 FairyGUIUtils.ReloadPackage(_branchPackage);
         }
-        
-        private void SetBranches(string[] branches)
+
+        public void ChangeBranch(string branch)
         {
-            _mainPackage.SetBranches(branches);
-            _branchPackage?.SetBranches(branches);
+            FairyGUIUtils.OnPackageBranchChanged(_mainPackage, _branch, branch);
+            _branch = branch;
         }
 
-        private void ResetAllBranches()
+        private void ClearAllBranchAt(int index)
         {
             foreach (var item in _mainPackage.GetItems())
             {
                 if (!string.IsNullOrEmpty(item.name))
                 {
-                    ClearItemBranches(item);
+                    ClearItemBranchAt(item, index);
                 }
             }
         }
 
-        private void UpdateItemBranches(PackageItem item, string[] branches, string itemId)
+        private void UpdateItemBranchAt(PackageItem item, string itemId, int index)
         {
-            if (branches == null || branches[0] != itemId)
-                item.branches = new[] {itemId};
+            if (item.branches == null)
+            {
+                var branches = new string[index + 1];
+                branches[index] = itemId;
+                item.branches = branches;
+            }
+            else
+            {
+                var branches = item.branches;
+                var count = branches.Length;
+                if (count > index)
+                {
+                    branches[index] = itemId;
+                }
+                else
+                {
+                    var newBranches = new string[index + 1];
+                    Array.Copy(branches, newBranches, count);
+                    newBranches[index] = itemId;
+                    item.branches = newBranches;
+                }
+            }
         }
 
-        private void ClearItemBranches(PackageItem item)
+        private void ClearItemBranchAt(PackageItem item, int index)
         {
-            item.branches = null;
+            var branches = item.branches;
+            if (branches != null && branches.Length > index)
+                branches[index] = null;
         }
 
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="branch"></param>
         /// <param name="branchPackage"></param>
         /// <returns>分支包是否包含所有资源</returns>
-        private bool SetBranchPackage(UIPackage branchPackage)
+        private bool SetBranchPackageInternal(string branch, UIPackage branchPackage)
         {
             ClearVirtual();
 
+            if (branch != _branch)
+            {
+                if (!string.IsNullOrEmpty(_branch) && _branchPackage != null)
+                {
+                    var oldIndex = _mainPackage.ApplyBranches(_branch);
+                    ClearAllBranchAt(oldIndex);
+                }
+                ChangeBranch(branch);
+            }
+            
             if (_branchPackage != null)
             {
                 ReleasePackage(_branchPackage);
                 _branchPackage = null;
             }
             
-            if (branchPackage == _mainPackage)
-            {
-                ResetAllBranches();
+            if (string.IsNullOrEmpty(branch) || branchPackage == null)
                 return false;
-            }
             
+            var index = _mainPackage.ApplyBranches(branch);
             bool isFull = true;
             foreach (var item in _mainPackage.GetItems())
             {
@@ -301,12 +325,12 @@ namespace PluginSet.FGUI
                     var branchItem = branchPackage.GetItemByName(item.name);
                     if (branchItem != null && branchItem.exported)
                     {
-                        UpdateItemBranches(item, item.branches, branchItem.id);
+                        UpdateItemBranchAt(item, branchItem.id, index);
                         AddVirtual(branchItem);
                     }
                     else
                     {
-                        ClearItemBranches(item);
+                        ClearItemBranchAt(item, index);
                         isFull = false;
                     }
                 }
@@ -336,7 +360,7 @@ namespace PluginSet.FGUI
         
         private void AddVirtual(PackageItem item)
         {
-            _mainPackage.VirtualAdd(item);
+            _mainPackage.VirtualAdd(item, _branch);
             _virtualItems.Add(item);
         }
 

@@ -8,6 +8,8 @@ namespace PluginSet.FGUI
         AsyncOperationHandle PreparePackage(string packageName);
         
         UIPackage LoadPackage(string packageName);
+
+        void OnBranchChanged(UIPackage package, string fromBranch, string toBranch);
         
         void ReloadPackage(UIPackage package);
         

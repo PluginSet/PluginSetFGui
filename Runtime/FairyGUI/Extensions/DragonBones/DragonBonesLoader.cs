@@ -33,7 +33,9 @@ namespace FairyGUI
             if (_armatureComponent != null)
                 FreeDragonBones();
 
-            _armatureComponent = UnityFactory.factory.BuildArmatureComponent(asset.armatureNames[0], asset.name, null, asset.name);
+            // 缓存使用的唯一名称
+            var dragonBonesName = _contentItem.name;
+            _armatureComponent = UnityFactory.factory.BuildArmatureComponent(asset.armatureNames[0], dragonBonesName, null, dragonBonesName);
             _armatureComponent.gameObject.transform.localScale = new Vector3(100, 100, 1);
             _armatureComponent.gameObject.transform.localPosition = new Vector3(anchor.x, -anchor.y, 0);
             SetWrapTarget(_armatureComponent.gameObject, true, width, height);

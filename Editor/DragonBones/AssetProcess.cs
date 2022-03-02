@@ -1,5 +1,6 @@
 
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+ using System.Diagnostics.CodeAnalysis;
 #if FAIRYGUI_DRAGONBONES
 
 /**
@@ -76,13 +77,17 @@ namespace DragonBones
                     {
                         atlasPaths.Add(str);
                     }
-                    else if (IsValidDragonBonesData((TextAsset)AssetDatabase.LoadAssetAtPath(str, typeof(TextAsset))))
-                    {
-                        skeletonPaths.Add(str);
-                    }
                     else
                     {
-                        atlasPaths.Add(str);
+                        var asset = (TextAsset)AssetDatabase.LoadAssetAtPath(str, typeof(TextAsset));
+                        if (IsValidDragonBonesData(asset))
+                        {
+                            skeletonPaths.Add(str);
+                        }
+                        else if (IsValidDragonBonesAtlas(asset))
+                        {
+                            atlasPaths.Add(str);
+                        }
                     }
                     break;
                 case ".dbbin":
@@ -120,6 +125,16 @@ namespace DragonBones
 
                 ProcessTextureAtlasData(atlPaths);
             }
+            
+            UnityEditor.CreateUnityData(skeletonPaths);
+        }
+
+        public static bool IsValidDragonBonesAtlas(TextAsset asset)
+        {
+            if (asset.text.IndexOf("\"SubTexture\"", StringComparison.Ordinal) > 0)
+                return true;
+
+            return false;
         }
 
         public static bool IsValidDragonBonesData (TextAsset asset)
