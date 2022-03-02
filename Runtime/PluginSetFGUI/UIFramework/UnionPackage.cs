@@ -169,6 +169,7 @@ namespace PluginSet.FGUI
         {
             SetBranchPackageInternal(branch, null);
             FairyGUIUtils.ReloadPackage(_mainPackage);
+            _mainPackage.SetBranch(branch);
         }
 
         private void SetBranchPackage(string branch, string packageName)
@@ -187,6 +188,7 @@ namespace PluginSet.FGUI
                 FairyGUIUtils.ReloadPackage(_branchPackage);
                 _isMainLoaded = true;
             }
+            _mainPackage.SetBranch(branch);
         }
 
         private void Retain()
@@ -301,7 +303,7 @@ namespace PluginSet.FGUI
             {
                 if (!string.IsNullOrEmpty(_branch) && _branchPackage != null)
                 {
-                    var oldIndex = _mainPackage.ApplyBranches(_branch);
+                    var oldIndex = _mainPackage.AddBranch(_branch);
                     ClearAllBranchAt(oldIndex);
                 }
                 ChangeBranch(branch);
@@ -316,7 +318,7 @@ namespace PluginSet.FGUI
             if (string.IsNullOrEmpty(branch) || branchPackage == null)
                 return false;
             
-            var index = _mainPackage.ApplyBranches(branch);
+            var index = _mainPackage.AddBranch(branch);
             bool isFull = true;
             foreach (var item in _mainPackage.GetItems())
             {

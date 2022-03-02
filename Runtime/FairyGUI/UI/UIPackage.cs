@@ -1709,7 +1709,7 @@ namespace FairyGUI
 #endif
         }
         
-        public int ApplyBranches(string branchName)
+        public int AddBranch(string branchName)
         {
             if (_branches == null)
             {
@@ -1727,6 +1727,14 @@ namespace FairyGUI
                 _branches = temp.ToArray();
                 return _branches.Length - 1;
             }
+        }
+
+        public void SetBranch(string branch)
+        {
+            if (_branches == null)
+                _branchIndex = -1;
+            else
+                _branchIndex = Array.IndexOf(_branches, branch);
         }
         
         public void VirtualAdd(PackageItem item, string itemBranch)
