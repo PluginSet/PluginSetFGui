@@ -91,6 +91,7 @@ namespace PluginSet.FGUI
 
         protected override void FreeExternal(NTexture texture)
         {
+            _requestUrl = null;
         }
 
         private void DownloadTexture()
@@ -112,6 +113,7 @@ namespace PluginSet.FGUI
             }
 
             _requestUrl = downloadUrl;
+            onExternalLoadSuccess(NTexture.Empty);
             var downloader = new DownloadHandlerTexture(readable);
             var request = new UnityWebRequest(downloadUrl, "GET", downloader, null);
             var async = request.SendWebRequest();
