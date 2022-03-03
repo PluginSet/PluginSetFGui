@@ -20,7 +20,7 @@ namespace FairyGUI
         /// </summary>
         public InitCallbackDelegate initCallback;
 
-        Dictionary<string, Queue<GObject>> _pool;
+        protected Dictionary<string, Queue<GObject>> _pool;
         Transform _manager;
 
         /// <summary>

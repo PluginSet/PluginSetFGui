@@ -38,19 +38,22 @@ namespace PluginSet.FGUI
         {
             foreach (var inst in _instances.Values)
             {
-                inst.Clear();
+                inst.Clean();
             }
         }
 
         public event InitCallbackDelegate OnObjectInit;
 
         private GameObject _gameObject;
+        
+        private Dictionary<string, List<string>> packagePools = new Dictionary<string, List<string>>();
 
         private UIObjectPool(GameObject gameObject)
             :base(gameObject.transform)
         {
             _gameObject = gameObject;
             initCallback = OnObjectInit;
+            FairyGUIUtils.OnPackageUnloadHandle += OnPackageUnloaded;
         }
 
         public GObject Get(string url)
@@ -60,14 +63,66 @@ namespace PluginSet.FGUI
 
         public void Put(GObject obj)
         {
+            if (obj.displayObject.isDisposed)
+                return;
+
+            var item = obj.packageItem;
+            if (item != null)
+            {
+                var packageName = item.owner.name;
+                var url = obj.resourceURL;
+                if (packagePools.TryGetValue(packageName, out var list))
+                {
+                    if (!list.Contains(url))
+                        list.Add(url);
+                }
+                else
+                {
+                    list = new List<string>();
+                    list.Add(url);
+                    packagePools.Add(packageName, list);
+                }
+            }
+            
             ReturnObject(obj);
+        }
+
+        public void Clean()
+        {
+            packagePools.Clear();
+            Clear();
+        }
+
+        public void ClearByUrl(string url)
+        {
+            if (_pool.TryGetValue(url, out var queue))
+            {
+                foreach (GObject obj in queue)
+                    obj.Dispose();
+
+                _pool.Remove(url);
+            }
         }
 
         public void Destroy()
         {
-            Clear();
+            Clean();
+            FairyGUIUtils.OnPackageUnloadHandle -= OnPackageUnloaded;
             Object.Destroy(_gameObject);
             _gameObject = null;
+        }
+
+        private void OnPackageUnloaded(string packageName)
+        {
+            if (packagePools.TryGetValue(packageName, out var list))
+            {
+                foreach (var url in list)
+                {
+                    ClearByUrl(url);
+                }
+                
+                list.Clear();
+            }
         }
     }
 }
