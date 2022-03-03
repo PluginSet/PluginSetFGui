@@ -44,15 +44,21 @@ namespace PluginSet.FGUI
                     if (manager.ExistsBundle(branchBundle))
                     {
                         if (!dict.ContainsKey(branchBundle))
+                        {
+                            manager.LoadBundle(branchBundle);
                             dict.Add(branchBundle, AsyncNonResultHandle<object>.Default);
+                        }
                         
                         if (manager.ExistsAsset(branchBundle, fileName))
                             return manager.LoadAsset(branchBundle, fileName, type);
                     }
                 }
-                
+
                 if (!dict.ContainsKey(bundleName))
+                {
+                    manager.LoadBundle(bundleName);
                     dict.Add(bundleName, AsyncNonResultHandle<object>.Default);
+                }
                 
                 // 分支中无资源时，使用主干资源
                 if (manager.ExistsAsset(bundleName, fileName))

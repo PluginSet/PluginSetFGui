@@ -210,7 +210,7 @@ namespace PluginSet.FGUI
             
             if (_retainCount <= 0)
             {
-                ReleasePackages();
+                ReleasePackages(true);
                 return true;
             }
 
@@ -311,7 +311,7 @@ namespace PluginSet.FGUI
             
             if (_branchPackage != null)
             {
-                ReleasePackage(_branchPackage);
+                ReleasePackage(_branchPackage, true);
                 _branchPackage = null;
             }
             
@@ -352,7 +352,7 @@ namespace PluginSet.FGUI
         {
             if (_branchPackage != null)
             {
-                ReleasePackage(_branchPackage, remove);
+                ReleasePackage(_branchPackage, true);
                 _branchPackage = null;
             }
             
