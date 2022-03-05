@@ -47,7 +47,26 @@ namespace FairyGUI
 
             PackageItem pi = UIPackage.GetItemByURL(url);
             if (pi != null)
+            {
                 pi.extensionCreator = creator;
+                if (pi.branches != null)
+                {
+                    var package = pi.owner;
+                    var packageId = package.id;
+                    foreach (var id in pi.branches)
+                    {
+                        if (string.IsNullOrEmpty(id))
+                            continue;
+                        
+                        var branchItem = package.GetItem(id);
+                        if (branchItem != null)
+                            branchItem.extensionCreator = creator;
+
+                        var branchUrl = UIPackage.URL_PREFIX + packageId + id;
+                        packageItemExtensions[branchUrl] = creator;
+                    }
+                }
+            }
 
             packageItemExtensions[url] = creator;
         }
@@ -139,7 +158,8 @@ namespace FairyGUI
         internal static void ResolvePackageItemExtension(PackageItem pi)
         {
             if (!packageItemExtensions.TryGetValue(UIPackage.URL_PREFIX + pi.owner.id + pi.id, out pi.extensionCreator)
-                && !packageItemExtensions.TryGetValue(UIPackage.URL_PREFIX + pi.owner.name + "/" + pi.name, out pi.extensionCreator))
+                && !packageItemExtensions.TryGetValue(UIPackage.URL_PREFIX + pi.owner.name + "/" + pi.name,
+                    out pi.extensionCreator))
                 pi.extensionCreator = null;
         }
 
