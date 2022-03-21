@@ -4,7 +4,7 @@ using FairyGUI.Utils;
 
 namespace PluginSet.FGUI
 {
-    public class UIToast: GLabel
+    public class UIToast: ToastBase
     {
         private static readonly ByteBuffer defautTransBuff;
 
@@ -165,6 +165,11 @@ namespace PluginSet.FGUI
                 _tempTransition.Stop();
                 
             PlayOutAnimation();
+        }
+
+        public override void Hide()
+        {
+            OutImmediately();
         }
 
         public override void Dispose()

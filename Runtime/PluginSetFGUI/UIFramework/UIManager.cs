@@ -131,40 +131,62 @@ namespace PluginSet.FGUI
             return window;
         }
 
-        public static void ShowView(string name, params object[] args)
+        public static UIWindow ShowView(string name, params object[] args)
         {
-            ShowOn(LayerView, name, args);
+            return ShowOn(LayerView, name, args);
         }
 
-        public static void ShowModal(string name, params object[] args)
+        public static UIWindow ShowModal(string name, params object[] args)
         {
-            ShowOn(LayerModal, name, args);
+            return ShowOn(LayerModal, name, args);
         }
         
-        public static void ShowLoading(string name, params object[] args)
+        public static UIWindow ShowLoading(string name, params object[] args)
         {
-            ShowOn(LayerLoading, name, args);
+            return ShowOn(LayerLoading, name, args);
         }
 
-        public static void ShowToast(string text, string icon = null, string url = null)
+        public static ToastBase ShowToast(string text, string icon = null, string url = null, int tag = 0)
         {
             if (string.IsNullOrEmpty(url))
                 url = _defaultToastUrl;
 
-            var toast = UIObjectPool.Instance.Get(url) as GLabel;
+            var toast = UIObjectPool.Instance.Get(url) as ToastBase;
             if (toast == null)
-                return;
+                return null;
             
             toast.title = text;
             if (!string.IsNullOrEmpty(icon))
                 toast.icon = icon;
-            
+
+            toast.Tag = tag;
             LayerToast.AddChild(toast);
+            return toast;
         }
 
         public static void HideAllToast()
         {
             LayerToast.RemoveChildren();
+        }
+
+        public static void HideToast(int tag)
+        {
+            foreach (var obj in LayerToast.GetChildren())
+            {
+                if (obj is ToastBase toast)
+                    if (toast.Tag == tag)
+                        toast.Hide();
+            }
+        }
+
+        public static void CloseToast(int tag)
+        {
+            foreach (var obj in LayerToast.GetChildren())
+            {
+                if (obj is ToastBase toast)
+                    if (toast.Tag == tag)
+                        toast.Close();
+            }
         }
         
         public static void ShowModalWait()
