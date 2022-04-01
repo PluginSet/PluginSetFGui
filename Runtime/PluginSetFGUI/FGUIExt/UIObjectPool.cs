@@ -53,7 +53,8 @@ namespace PluginSet.FGUI
         {
             _gameObject = gameObject;
             initCallback = OnObjectInit;
-            FairyGUIUtils.OnPackageUnloadHandle += OnPackageUnloaded;
+            FairyGUIUtils.OnPackageLoadedHandle += OnPackageLoaded;
+            FairyGUIUtils.OnPackageUnloadHandle += OnPackageUnload;
         }
 
         public GObject Get(string url)
@@ -78,9 +79,9 @@ namespace PluginSet.FGUI
                 }
                 else
                 {
-                    list = new List<string>();
-                    list.Add(url);
-                    packagePools.Add(packageName, list);
+                    // package not loaded, dispose object
+                    obj.Dispose();
+                    return;
                 }
             }
             
@@ -107,12 +108,21 @@ namespace PluginSet.FGUI
         public void Destroy()
         {
             Clean();
-            FairyGUIUtils.OnPackageUnloadHandle -= OnPackageUnloaded;
+            FairyGUIUtils.OnPackageLoadedHandle -= OnPackageLoaded;
+            FairyGUIUtils.OnPackageUnloadHandle -= OnPackageUnload;
             Object.Destroy(_gameObject);
             _gameObject = null;
         }
 
-        private void OnPackageUnloaded(string packageName)
+        private void OnPackageLoaded(string packageName)
+        {
+            if (packagePools.ContainsKey(packageName))
+                return;
+            
+            packagePools.Add(packageName, new List<string>());
+        }
+
+        private void OnPackageUnload(string packageName)
         {
             if (packagePools.TryGetValue(packageName, out var list))
             {
@@ -120,8 +130,8 @@ namespace PluginSet.FGUI
                 {
                     ClearByUrl(url);
                 }
-                
-                list.Clear();
+
+                packagePools.Remove(packageName);
             }
         }
     }
