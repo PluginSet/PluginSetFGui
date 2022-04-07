@@ -12,6 +12,7 @@ namespace FairyGUI
     public class UIObjectFactory
     {
         public delegate GComponent GComponentCreator();
+        public delegate GList GListCreator();
         public delegate GLoader GLoaderCreator();
         public delegate GLoader3D GLoader3DCreator();
         public delegate GTextField GTextFieldCreator();
@@ -24,6 +25,7 @@ namespace FairyGUI
         static GTextInputCreator textInputCreator;
         static GLoaderCreator loaderCreator;
         static GLoader3DCreator loader3DCreator;
+        static GListCreator listCreator;
 
         /// <summary>
         /// 
@@ -79,6 +81,11 @@ namespace FairyGUI
             loaderCreator = () => { return (GLoader)Activator.CreateInstance(type); };
         }
         
+        public static void SetListExtension(System.Type type)
+        {
+            listCreator = () => { return (GList)Activator.CreateInstance(type); };
+        }
+        
         public static void SetTextFieldExtension(System.Type type)
         {
             textFieldCreator = () => { return (GTextField)Activator.CreateInstance(type); };
@@ -101,6 +108,11 @@ namespace FairyGUI
         public static void SetLoaderExtension(GLoaderCreator creator)
         {
             loaderCreator = creator;
+        }
+        
+        public static void SetListExtension(GListCreator creator)
+        {
+            listCreator = creator;
         }
         
         public static void SetTextFieldExtension(GTextFieldCreator creator)
@@ -153,6 +165,7 @@ namespace FairyGUI
         {
             packageItemExtensions.Clear();
             loaderCreator = null;
+            listCreator = null;
             loader3DCreator = null;
             textFieldCreator = null;
             textInputCreator = null;
@@ -231,6 +244,8 @@ namespace FairyGUI
                     return new GGroup();
 
                 case ObjectType.List:
+                    if (listCreator != null)
+                        return listCreator();
                     return new GList();
 
                 case ObjectType.Graph:

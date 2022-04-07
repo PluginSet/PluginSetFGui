@@ -55,15 +55,15 @@ namespace FairyGUI
         /// </summary>
         public bool scrollItemToViewOnClick;
 
-        ListLayoutType _layout;
-        int _lineCount;
-        int _columnCount;
-        int _lineGap;
-        int _columnGap;
-        AlignType _align;
-        VertAlignType _verticalAlign;
-        bool _autoResizeItem;
-        Controller _selectionController;
+        protected ListLayoutType _layout;
+        protected int _lineCount;
+        protected int _columnCount;
+        protected int _lineGap;
+        protected int _columnGap;
+        protected AlignType _align;
+        protected VertAlignType _verticalAlign;
+        protected bool _autoResizeItem;
+        protected Controller _selectionController;
 
         GObjectPool _pool;
         int _lastSelectedIndex;
@@ -72,16 +72,16 @@ namespace FairyGUI
         EventListener _onRightClickItem;
 
         //Virtual List support
-        bool _virtual;
-        bool _loop;
-        int _numItems;
-        int _realNumItems;
-        int _firstIndex; //the top left index
-        int _curLineItemCount; //item count in one line
-        int _curLineItemCount2; //只用在页面模式，表示垂直方向的项目数
-        Vector2 _itemSize;
-        int _virtualListChanged; //1-content changed, 2-size changed
-        uint itemInfoVer; //用来标志item是否在本次处理中已经被重用了
+        protected bool _virtual;
+        protected bool _loop;
+        protected int _numItems;
+        protected int _realNumItems;
+        protected int _firstIndex; //the top left index
+        protected int _curLineItemCount; //item count in one line
+        protected int _curLineItemCount2; //只用在页面模式，表示垂直方向的项目数
+        protected Vector2 _itemSize;
+        protected int _virtualListChanged; //1-content changed, 2-size changed
+        protected uint itemInfoVer; //用来标志item是否在本次处理中已经被重用了
 
         int _miscFlags; //1-event locked, 2-focus events registered
 
@@ -2508,7 +2508,7 @@ namespace FairyGUI
                 base.GetSnappingPosition(ref xValue, ref yValue);
         }
 
-        private void HandleAlign(float contentWidth, float contentHeight)
+        protected void HandleAlign(float contentWidth, float contentHeight)
         {
             Vector2 newOffset = Vector2.zero;
 

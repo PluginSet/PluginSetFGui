@@ -46,6 +46,7 @@ namespace PluginSet.FGUI
         
         public IEnumerator StartPlugin()
         {
+            UIObjectFactory.SetListExtension(typeof(GCustomList));
             UIObjectFactory.SetLoaderExtension(typeof(GCustomLoader));
             UIObjectFactory.SetLoader3DExtension(typeof(GCustomLoader3D));
 
