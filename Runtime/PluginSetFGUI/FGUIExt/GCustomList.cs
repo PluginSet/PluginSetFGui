@@ -5,12 +5,23 @@ namespace PluginSet.FGUI
 {
     public class GCustomList: GList
     {
+        protected bool _matchAlign = false;
+        
+        public void SetMatchAlign(bool match)
+        {
+            if (_matchAlign == match)
+                return;
+            
+            _matchAlign = match;
+            UpdateBounds();
+        }
+    
         protected override void UpdateBounds()
         {
             if (_virtual)
                 return;
 
-            if (_layout != ListLayoutType.FlowHorizontal && _layout != ListLayoutType.FlowVertical)
+            if (!_matchAlign || _layout != ListLayoutType.FlowHorizontal && _layout != ListLayoutType.FlowVertical)
             {
                 base.UpdateBounds();
                 return;
