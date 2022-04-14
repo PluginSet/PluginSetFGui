@@ -6,6 +6,11 @@ namespace PluginSet.FGUI
     {
         public virtual int Tag { get; set; }
 
+        public virtual void Show()
+        {
+            
+        }
+
         public virtual void Hide()
         {
             
