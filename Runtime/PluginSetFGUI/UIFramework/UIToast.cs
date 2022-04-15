@@ -72,9 +72,8 @@ namespace PluginSet.FGUI
         private static void ShowToast(UIToast toast)
         {
             _currentToast = toast;
-            toast._outDelay = ToastStaySeconds;
             toast.visible = true;
-            toast.Show();
+            toast.Show(ToastStaySeconds);
         }
 
         private static void CacheToast(object toast)
@@ -134,8 +133,9 @@ namespace PluginSet.FGUI
                 ShowNextToast();
         }
 
-        public override void Show()
+        public override void Show(float duration)
         {
+            _outDelay = duration;
             InTransition.Play(PlayDelayAnimation);
         }
 
