@@ -123,7 +123,10 @@ namespace PluginSet.FGUI
         protected override void OnHide()
         {
             if (!_hided)
+            {
+                _hided = true;
                 BeforeHide();
+            }
             _hided = true;
             base.OnHide();
             DoExit();
@@ -131,8 +134,11 @@ namespace PluginSet.FGUI
 
         protected override void DoHideAnimation()
         {
-            BeforeHide();
-            _hided = true;
+            if (!_hided)
+            {
+                _hided = true;
+                BeforeHide();
+            }
             if (ExitTransition != null)
             {
                 ExitTransition.Play(HideImmediately);
