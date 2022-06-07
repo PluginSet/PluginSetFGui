@@ -41,10 +41,10 @@ namespace PluginSet.FGUI
         public virtual Transition InTransition { get; set; }
         
         public virtual Transition OutTransition { get; set; }
-
-
+        
         private UIToastShowRule _rule;
         private float _outDelay;
+        private float? _presetDelay = null;
 
         public void SetRule(UIToastShowRule rule)
         {
@@ -86,18 +86,28 @@ namespace PluginSet.FGUI
 
         private void OnRemoveFromStage()
         {
+            _presetDelay = null;
             Timers.inst.CallLater(CacheToast, this);
             _rule?.OnToastRemove(this);
         }
         
         public void Show()
         {
+            _presetDelay = null;
             Show(float.MaxValue);
+        }
+
+        public void PresetDelay(float? delay)
+        {
+            _presetDelay = delay;
         }
 
         public void Show(float duration)
         {
             _outDelay = duration;
+            if (_presetDelay.HasValue)
+                _outDelay = _presetDelay.Value;
+            
             this.visible = true;
             InTransition.Play(PlayDelayAnimation);
         }
@@ -137,6 +147,7 @@ namespace PluginSet.FGUI
 
         public override void Dispose()
         {
+            _presetDelay = null;
             GTween.Kill(this);
             base.Dispose();
         }
