@@ -1,10 +1,9 @@
-using System.Collections.Generic;
 using FairyGUI;
 using FairyGUI.Utils;
 
 namespace PluginSet.FGUI
 {
-    public class UIToast: ToastBase
+    public class UIToast: GLabel
     {
         private static readonly ByteBuffer defautTransBuff;
 
@@ -29,65 +28,28 @@ namespace PluginSet.FGUI
             tran.Setup(defautTransBuff);
             return tran;
         }
-        
-        // Toast 在进入/退出动画间隙停留时长
-        public static float ToastStaySeconds = 3f;
-
-        // 有新Toast当前Toast立即退出(播放完整动画，不停留)
-        public static bool OutImmediatelyWhenNew = true;
-        
-        // 当上个Toast在播放退出动画时，就可以播放下个Toast
-        public static bool EnableShowWhenLastOut = true;
-            
-        private static UIToast _currentToast;
-        
-        private static List<UIToast> _queue = new List<UIToast>();
-
-        private static void ShowNextToast()
-        {
-            Timers.inst.CallLater(ShowNext);
-        }
-
-        private static void ShowNext(object _)
-        {
-            if (_currentToast != null && !_currentToast.isDisposed)
-            {
-                if (OutImmediatelyWhenNew && _queue.Count > 0)
-                    _currentToast.OutImmediately();
-                return;
-            }
-
-            _currentToast = null;
-            while (_queue.Count > 0)
-            {
-                var toast = _queue[0];
-                _queue.RemoveAt(0);
-                if (toast.isDisposed) continue;
-                
-                ShowToast(toast);
-                return;
-            }
-        }
-
-        private static void ShowToast(UIToast toast)
-        {
-            _currentToast = toast;
-            toast.visible = true;
-            toast.Show(ToastStaySeconds);
-        }
 
         private static void CacheToast(object toast)
         {
             UIObjectPool.Instance.Put((UIToast) toast);
         }
-
+        
         private Transition _tempTransition;
+        
+        public virtual int Tag { get; set; }
         
         public virtual Transition InTransition { get; set; }
         
         public virtual Transition OutTransition { get; set; }
 
+
+        private UIToastShowRule _rule;
         private float _outDelay;
+
+        public void SetRule(UIToastShowRule rule)
+        {
+            _rule = rule;
+        }
 
         protected override void ConstructExtension(ByteBuffer buffer)
         {
@@ -119,23 +81,24 @@ namespace PluginSet.FGUI
         private void OnAddToStage()
         {
             visible = false;
-            _queue.Add(this);
-            ShowNextToast();
+            _rule?.OnToastAdded(this);
         }
 
         private void OnRemoveFromStage()
         {
             Timers.inst.CallLater(CacheToast, this);
-            if (_currentToast == this)
-                _currentToast = null;
-
-            if (!_queue.Remove(this))
-                ShowNextToast();
+            _rule?.OnToastRemove(this);
+        }
+        
+        public void Show()
+        {
+            Show(float.MaxValue);
         }
 
-        public override void Show(float duration)
+        public void Show(float duration)
         {
             _outDelay = duration;
+            this.visible = true;
             InTransition.Play(PlayDelayAnimation);
         }
 
@@ -146,16 +109,11 @@ namespace PluginSet.FGUI
 
         private void PlayOutAnimation()
         {
-            if (EnableShowWhenLastOut)
-            {
-                _currentToast = null;
-                ShowNextToast();
-            }
-            
+            _rule?.OnToastOut(this);
             OutTransition.Play(RemoveFromParent);
         }
         
-        private void OutImmediately()
+        internal void OutImmediately()
         {
             _outDelay = 0;
             if (InTransition.playing)
@@ -167,9 +125,14 @@ namespace PluginSet.FGUI
             PlayOutAnimation();
         }
 
-        public override void Hide()
+        public void Hide()
         {
             OutImmediately();
+        }
+        
+        public void Close()
+        {
+            RemoveFromParent();
         }
 
         public override void Dispose()

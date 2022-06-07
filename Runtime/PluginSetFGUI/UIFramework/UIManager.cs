@@ -146,12 +146,22 @@ namespace PluginSet.FGUI
             return ShowOn(LayerLoading, name, args);
         }
 
-        public static ToastBase ShowToast(string text, string icon = null, string url = null, int tag = 0)
+        public static void CreateToastRule(int tag, float defaultStaySeconds, bool outImmediatelyWhenNew, bool enableShowWhenLastOut)
+        {
+            CreateToastRule($"Tag_{tag}", defaultStaySeconds, outImmediatelyWhenNew, enableShowWhenLastOut);
+        }
+
+        public static void CreateToastRule(string name, float defaultStaySeconds, bool outImmediatelyWhenNew, bool enableShowWhenLastOut)
+        {
+            UIToastShowRule.AddRule(name, new UIToastShowRuleDefault(defaultStaySeconds, outImmediatelyWhenNew, enableShowWhenLastOut));
+        }
+
+        public static UIToast ShowToast(string text, string icon = null, string url = null, int tag = 0, string rule = null)
         {
             if (string.IsNullOrEmpty(url))
                 url = _defaultToastUrl;
 
-            var toast = UIObjectPool.Instance.Get(url) as ToastBase;
+            var toast = UIObjectPool.Instance.Get(url) as UIToast;
             if (toast == null)
                 return null;
             
@@ -160,6 +170,11 @@ namespace PluginSet.FGUI
                 toast.icon = icon;
 
             toast.Tag = tag;
+            
+            if (string.IsNullOrEmpty(rule))
+                rule = $"Tag_{tag}";
+            toast.SetRule(UIToastShowRule.GetRule(rule));
+            
             LayerToast.AddChild(toast);
             return toast;
         }
@@ -173,7 +188,7 @@ namespace PluginSet.FGUI
         {
             foreach (var obj in LayerToast.GetChildren())
             {
-                if (obj is ToastBase toast)
+                if (obj is UIToast toast)
                     if (toast.Tag == tag)
                         toast.Hide();
             }
@@ -183,7 +198,7 @@ namespace PluginSet.FGUI
         {
             foreach (var obj in LayerToast.GetChildren())
             {
-                if (obj is ToastBase toast)
+                if (obj is UIToast toast)
                     if (toast.Tag == tag)
                         toast.Close();
             }

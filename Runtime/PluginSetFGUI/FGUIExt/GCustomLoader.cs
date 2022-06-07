@@ -134,7 +134,8 @@ namespace PluginSet.FGUI
             if (request.isNetworkError || request.isHttpError)
             {
                 Logger.Warn("Fail download texture with url " + _requestUrl);
-                onExternalLoadFailed();
+                if (!_disposed)
+                    onExternalLoadFailed();
                 return;
             }
 
@@ -143,11 +144,14 @@ namespace PluginSet.FGUI
             if (downloadTexture == null)
             {
                 Logger.Warn("Fail parse texture with url " + _requestUrl);
-                onExternalLoadFailed();
+                if (!_disposed)
+                    onExternalLoadFailed();
                 return;
             }
                 
-            onExternalLoadSuccess(new NTexture(downloadTexture));
+            
+            if (!_disposed)
+                onExternalLoadSuccess(new NTexture(downloadTexture));
             
             if (downloadTexture.isReadable)
             {
