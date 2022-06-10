@@ -10,6 +10,9 @@ namespace PluginSet.FGUI.Editor
     {
         static SpineLibImportedChecker()
         {
+            if (Application.isBatchMode)
+                return;
+            
             var buildChannels = EditorSetting.CurrentBuildChannel;
             var buildParams = buildChannels.Get<PluginSetFGUIBuildParams>("FGUI");
             if (buildParams && buildParams.EnableSpine)
