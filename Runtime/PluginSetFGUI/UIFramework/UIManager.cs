@@ -146,17 +146,17 @@ namespace PluginSet.FGUI
             return ShowOn(LayerLoading, name, args);
         }
 
-        public static void CreateToastRule(int tag, float defaultStaySeconds, bool outImmediatelyWhenNew, bool enableShowWhenLastOut)
-        {
-            CreateToastRule($"Tag_{tag}", defaultStaySeconds, outImmediatelyWhenNew, enableShowWhenLastOut);
-        }
-
         public static void CreateToastRule(string name, float defaultStaySeconds, bool outImmediatelyWhenNew, bool enableShowWhenLastOut)
         {
             UIToastShowRule.AddRule(name, new UIToastShowRuleDefault(defaultStaySeconds, outImmediatelyWhenNew, enableShowWhenLastOut));
         }
 
-        public static UIToast ShowToast(string text, string icon = null, string url = null, int tag = 0, string rule = null)
+        public static UIToast ShowToast(string text, string icon = null, string url = null, int tag = 0)
+        {
+            return ShowToast(text, icon, url, tag, url);
+        }
+        
+        public static UIToast ShowToast(string text, string icon, string url, int tag, string rule)
         {
             if (string.IsNullOrEmpty(url))
                 url = _defaultToastUrl;
@@ -170,9 +170,6 @@ namespace PluginSet.FGUI
                 toast.icon = icon;
 
             toast.Tag = tag;
-            
-            if (string.IsNullOrEmpty(rule))
-                rule = $"Tag_{tag}";
             toast.SetRule(UIToastShowRule.GetRule(rule));
             
             LayerToast.AddChild(toast);
