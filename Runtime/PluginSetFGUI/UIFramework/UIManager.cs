@@ -153,6 +153,9 @@ namespace PluginSet.FGUI
 
         public static UIToast ShowToast(string text, string icon = null, string url = null, int tag = 0)
         {
+            if (string.IsNullOrEmpty(url))
+                url = _defaultToastUrl;
+            
             return ShowToast(text, icon, url, tag, url);
         }
         
