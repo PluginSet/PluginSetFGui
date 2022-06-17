@@ -1,10 +1,26 @@
 using FairyGUI;
+using FairyGUI.Utils;
 using UnityEngine;
 
 namespace PluginSet.FGUI
 {
+    public abstract class CustomListDelegate
+    {
+        public CustomListDelegate()
+        {
+        }
+        
+        internal abstract void OnDelegateRemove(GCustomList list);
+        
+        internal abstract void OnListSetupAfterAdd(GCustomList list);
+        
+        internal abstract void OnListUpdateBounds(GCustomList list);
+    }
+    
     public class GCustomList: GList
     {
+        protected CustomListDelegate _listDelegate;
+        
         protected bool _matchAlign = false;
         
         public void SetMatchAlign(bool match)
@@ -15,7 +31,24 @@ namespace PluginSet.FGUI
             _matchAlign = match;
             UpdateBounds();
         }
-    
+
+        public void SetCustomListDelegate(CustomListDelegate @delegate)
+        {
+            _listDelegate?.OnDelegateRemove(this);
+            _listDelegate = @delegate;
+            if (this.parent == null)
+                return;
+            
+            _listDelegate?.OnListSetupAfterAdd(this);
+            _listDelegate?.OnListUpdateBounds(this);
+        }
+
+        public override void Setup_AfterAdd(ByteBuffer buffer, int beginPos)
+        {
+            base.Setup_AfterAdd(buffer, beginPos);
+            _listDelegate?.OnListSetupAfterAdd(this);
+        }
+        
         protected override void UpdateBounds()
         {
             if (_virtual)
@@ -24,6 +57,7 @@ namespace PluginSet.FGUI
             if (!_matchAlign || _layout != ListLayoutType.FlowHorizontal && _layout != ListLayoutType.FlowVertical)
             {
                 base.UpdateBounds();
+                _listDelegate?.OnListUpdateBounds(this);
                 return;
             }
             
@@ -297,6 +331,7 @@ namespace PluginSet.FGUI
             SetBounds(0, 0, cw, ch);
 
             InvalidateBatchingState(true);
+            _listDelegate?.OnListUpdateBounds(this);
         }
     }
 }
