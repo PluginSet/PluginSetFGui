@@ -2565,7 +2565,8 @@ namespace FairyGUI
 
                     if (curY != 0)
                         curY += _lineGap;
-                    child.y = curY;
+//                    child.y = curY;
+                    child.SetXY(0f, curY);
                     if (_autoResizeItem)
                         child.SetSize(viewWidth, child.height, true);
                     curY += Mathf.CeilToInt(child.height);
@@ -2600,7 +2601,8 @@ namespace FairyGUI
 
                     if (curX != 0)
                         curX += _columnGap;
-                    child.x = curX;
+//                    child.x = curX;
+                    child.SetXY(curX, 0f);
                     if (_autoResizeItem)
                         child.SetSize(child.width, viewHeight, true);
                     curX += Mathf.CeilToInt(child.width);
@@ -3048,4 +3050,4 @@ namespace FairyGUI
                 _selectionController = parent.GetControllerAt(i);
         }
     }
-}
+ }

@@ -34,7 +34,7 @@ namespace PluginSet.FGUI
             OnOffClickFrame(_closeWhenClickFrame);
             _modalFrame = contentPane.GetChild("frame") as GComponent;
             
-            var contentFrame = _loader.component.GetChild("frame") as GComponent;
+            var contentFrame = _loader.component?.GetChild("frame") as GComponent;
             if (contentFrame != null)
             {
                 this.closeButton = contentFrame.GetChild("closeButton");

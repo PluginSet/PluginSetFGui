@@ -183,8 +183,11 @@ namespace PluginSet.FGUI
             
             BeforeCreate();
 
-            var cmp = UIObjectPool.Instance.Get(_url);
-            this.contentPane = (GComponent) cmp;
+            if (!string.IsNullOrEmpty(_url))
+            {
+                var cmp = UIObjectPool.Instance.Get(_url);
+                this.contentPane = (GComponent) cmp;
+            }
         }
 
         protected virtual void DoEnter()
