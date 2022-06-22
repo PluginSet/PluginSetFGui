@@ -127,7 +127,7 @@ namespace PluginSet.FGUI
 
         public static void MakeFullScreen(GObject target)
         {
-            var parent = target.parent;
+            var parent = target.displayObject.parent;
             if (parent == null)
                 return;
 
