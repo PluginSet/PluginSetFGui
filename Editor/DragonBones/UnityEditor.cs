@@ -142,6 +142,7 @@ namespace DragonBones
                 {
                     string path = textureAtlasJSONs[i];
                     //load textureAtlas data
+                    path = PluginSet.Core.Global.GetSubPath(".", path);
                     UnityDragonBonesData.TextureAtlas ta = new UnityDragonBonesData.TextureAtlas();
                     ta.textureAtlasJSON = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
                     //load texture
