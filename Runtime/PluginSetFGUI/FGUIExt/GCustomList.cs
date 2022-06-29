@@ -22,6 +22,10 @@ namespace PluginSet.FGUI
         protected CustomListDelegate _listDelegate;
         
         protected bool _matchAlign = false;
+
+        protected bool _sizeLimit = false;
+        protected float _maxGap;
+        protected float _maxSize;
         
         public void SetMatchAlign(bool match)
         {
@@ -43,6 +47,18 @@ namespace PluginSet.FGUI
             _listDelegate?.OnListUpdateBounds(this);
         }
 
+        public void SetSizeLimit(float maxSize, float maxGap)
+        {
+            _sizeLimit = true;
+            _maxSize = maxSize;
+            _maxGap = maxGap;
+        }
+
+        public void ClearSizeLimit()
+        {
+            _sizeLimit = false;
+        }
+
         public override void Setup_AfterAdd(ByteBuffer buffer, int beginPos)
         {
             base.Setup_AfterAdd(buffer, beginPos);
@@ -54,13 +70,56 @@ namespace PluginSet.FGUI
             if (_virtual)
                 return;
 
+            UpdateBoundsInternal();
+            _listDelegate?.OnListUpdateBounds(this);
+        }
+
+        protected void UpdateBoundsInternal()
+        {
             if (!_matchAlign || _layout != ListLayoutType.FlowHorizontal && _layout != ListLayoutType.FlowVertical)
             {
+                if (!_autoResizeItem && _sizeLimit && (_layout == ListLayoutType.SingleColumn || _layout == ListLayoutType.SingleRow))
+                    CheckSizeLimit();
+                
                 base.UpdateBounds();
-                _listDelegate?.OnListUpdateBounds(this);
                 return;
             }
             
+            UpdateBoundsMatchAlign();
+        }
+
+        protected void CheckSizeLimit()
+        {
+            float itemTotalSize = 0;
+            int itemCount = 0;
+            foreach (var child in _children)
+            {
+                if (foldInvisibleItems && !child.visible)
+                    continue;
+
+                if (_layout == ListLayoutType.SingleColumn)
+                    itemTotalSize += child.height;
+                else if (_layout == ListLayoutType.SingleRow)
+                    itemTotalSize += child.width;
+
+                itemCount++;
+            }
+
+            if (itemCount < 1)
+                return;
+
+            var targetGap = _maxGap;
+            if ((itemTotalSize + (itemCount - 1) * _maxGap) > _maxSize)
+                targetGap = (_maxSize - itemTotalSize) / (itemCount - 1);
+
+            if (_layout == ListLayoutType.SingleColumn)
+                lineGap = Mathf.FloorToInt(targetGap);
+            else if (_layout == ListLayoutType.SingleRow)
+                columnGap = Mathf.FloorToInt(targetGap);
+        }
+
+        protected void UpdateBoundsMatchAlign()
+        {
             int cnt = _children.Count;
             int i;
             int j = 0;
@@ -331,7 +390,6 @@ namespace PluginSet.FGUI
             SetBounds(0, 0, cw, ch);
 
             InvalidateBatchingState(true);
-            _listDelegate?.OnListUpdateBounds(this);
         }
     }
 }
