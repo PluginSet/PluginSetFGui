@@ -26,6 +26,8 @@ namespace PluginSet.FGUI
         protected bool _sizeLimit = false;
         protected float _maxGap;
         protected float _maxSize;
+
+        public bool listSizeFollowContainer = false;
         
         public void SetMatchAlign(bool match)
         {
@@ -390,6 +392,15 @@ namespace PluginSet.FGUI
             SetBounds(0, 0, cw, ch);
 
             InvalidateBatchingState(true);
+        }
+
+        protected override void SetBounds(float ax, float ay, float aw, float ah)
+        {
+            base.SetBounds(ax, ay, aw, ah);
+            if (listSizeFollowContainer)
+            {
+                this.SetSize(aw, ah);
+            }
         }
     }
 }

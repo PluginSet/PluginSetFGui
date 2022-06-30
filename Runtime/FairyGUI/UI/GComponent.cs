@@ -1184,7 +1184,7 @@ namespace FairyGUI
             SetBounds(ax, ay, aw, ah);
         }
 
-        protected void SetBounds(float ax, float ay, float aw, float ah)
+        protected virtual void SetBounds(float ax, float ay, float aw, float ah)
         {
             _boundsChanged = false;
             if (scrollPane != null)
