@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FairyGUI;
+using UnityEngine;
 
 namespace PluginSet.FGUI
 {
@@ -223,6 +224,19 @@ namespace PluginSet.FGUI
                 UnionPackage.ReleaseUnionPackage(pkg);
             }
 
+        }
+        
+        protected override void LayoutModalWaitPane()
+        {
+            var area = contentArea;
+            if (area != null)
+            {
+                var rect = area.displayObject.TransformRect(new Rect(Vector2.zero, area.size), this.displayObject);
+                modalWaitingPane.SetXY(rect.x, rect.y);
+                modalWaitingPane.SetSize(rect.width, rect.height);
+            }
+            else
+                modalWaitingPane.SetSize(this.width, this.height);
         }
     }
 }
