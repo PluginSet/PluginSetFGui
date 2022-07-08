@@ -15,6 +15,14 @@ namespace PluginSet.FGUI
         
         public static bool EnableCacheImage = true;
 
+#if UNITY_EDITOR_OSX
+        private const string FILE_URL_PREFIX = "file://";
+#elif UNITY_EDITOR || UNITY_STANDALONE_WIN
+        private const string FILE_URL_PREFIX = "file:///";
+#else
+        private const string FILE_URL_PREFIX = "file://";
+#endif
+
         static GCustomLoader()
         {
             ImageCachePath = Path.Combine(Application.persistentDataPath, "caches", "images");
@@ -73,7 +81,7 @@ namespace PluginSet.FGUI
         {
             if (_url.StartsWith("https://")
                 || _url.StartsWith("http://")
-                || _url.StartsWith("file:///")
+                || _url.StartsWith("file://")
                 || _url.StartsWith("ftp://"))
             {
                 DownloadTexture();
@@ -98,13 +106,13 @@ namespace PluginSet.FGUI
         {
             string downloadUrl = _url;
             bool readable = true;
-            if (EnableCacheImage && !downloadUrl.StartsWith("file:///"))
+            if (EnableCacheImage && !downloadUrl.StartsWith(FILE_URL_PREFIX))
             {
                 var path = GetTextureCachePath();
                 if (File.Exists(path))
                 {
                     readable = false;
-                    downloadUrl = "file:///" + path;
+                    downloadUrl = FILE_URL_PREFIX + path;
                 }
             }
             else
