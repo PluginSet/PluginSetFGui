@@ -37,35 +37,9 @@ namespace PluginSet.FGUI.Editor
         
         public static bool CheckSpineLibImported()
         {
-
-            var added = IncludePackage("com.esotericsoftware.spine.spine-unity");
-            Debug.Log("FairyGUIBuildTools.CheckSpineLibImported ==================== " + added);
-            if (added)
-                return true;
-
-            var request = Client.Add("https://github.com/LyneXiao/Spine-Runtime-Unity.git");
-            while (!request.IsCompleted)
-            {
-                EditorApplication.Step();
-            }
-
-            if (request.Status == StatusCode.Success)
-            {
-                Debug.Log("Add spine package success!");
-                return true;
-            }
-            
-            if (Application.isBatchMode)
-                throw new BuildException("Spine package need!");
-            
-            Debug.LogWarning("Add spine package fail!");
-
-            return false;
-        }
-        
-        private static bool IncludePackage(string packageName)
-        {
-            return !string.IsNullOrEmpty(Global.GetPackageFullPath(packageName));
+            var spineLibName = "com.esotericsoftware.spine.spine-unity";
+            var spineGitAddress = "https://github.com/LyneXiao/Spine-Runtime-Unity.git";
+            return Global.CheckGitLibImported(spineLibName, spineGitAddress);
         }
     }
 }
