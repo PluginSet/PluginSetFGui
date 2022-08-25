@@ -159,7 +159,7 @@ namespace PluginSet.FGUI
             return ShowToast(text, icon, url, tag, url);
         }
         
-        public static UIToast ShowToast(string text, string icon, string url, int tag, string rule)
+        public static UIToast ShowToast(string text, string icon, string url, int tag, string rule, int sortingOrder = 0)
         {
             if (string.IsNullOrEmpty(url))
                 url = _defaultToastUrl;
@@ -173,6 +173,7 @@ namespace PluginSet.FGUI
                 toast.icon = icon;
 
             toast.Tag = tag;
+            toast.sortingOrder = sortingOrder;
             toast.SetRule(UIToastShowRule.GetRule(rule));
             
             LayerToast.AddChild(toast);

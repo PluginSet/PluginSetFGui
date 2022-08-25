@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+#if FAIRYGUI_TOLUA
+using LuaInterface;
+#endif
 
 namespace PluginSet.FGUI
 {
@@ -24,10 +27,19 @@ namespace PluginSet.FGUI
                 _rules.Add(name, rule);
         }
 
-        internal abstract void OnToastAdded(UIToast toast);
+#if FAIRYGUI_TOLUA
+        [NoToLua]
+#endif
+        public abstract void OnToastAdded(UIToast toast);
 
-        internal abstract void OnToastOut(UIToast toast);
+#if FAIRYGUI_TOLUA
+        [NoToLua]
+#endif
+        public abstract void OnToastOut(UIToast toast);
 
-        internal abstract void OnToastRemove(UIToast toast);
+#if FAIRYGUI_TOLUA
+        [NoToLua]
+#endif
+        public abstract void OnToastRemove(UIToast toast);
     }
 }

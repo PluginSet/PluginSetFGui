@@ -14,8 +14,8 @@ namespace PluginSet.FGUI
         // 当上个Toast在播放退出动画时，就可以播放下个Toast
         public bool EnableShowWhenLastOut;
             
-        private UIToast _currentToast;
-        private List<UIToast> _queue;
+        protected UIToast _currentToast;
+        protected List<UIToast> _queue;
 
         public UIToastShowRuleDefault(float defaultStaySeconds, bool outImmediatelyWhenNew, bool enableShowWhenLastOut)
         {
@@ -28,7 +28,7 @@ namespace PluginSet.FGUI
         }
         
         
-        private void ShowNext(object _)
+        protected void ShowNext(object _)
         {
             if (_currentToast != null && !_currentToast.isDisposed)
             {
@@ -52,13 +52,31 @@ namespace PluginSet.FGUI
             }
         }
 
-        internal override void OnToastAdded(UIToast toast)
+        protected virtual void AddToSequence(UIToast toast)
         {
+            var order = toast.sortingOrder;
+            if (order > 0)
+            {
+                for (int i = 0; i < _queue.Count; i++)
+                {
+                    if (_queue[i].sortingOrder > order)
+                    {
+                        _queue.Insert(i, toast);
+                        return;
+                    }
+                }
+            }
+            
             _queue.Add(toast);
+        }
+
+        public override void OnToastAdded(UIToast toast)
+        {
+            AddToSequence(toast);
             Timers.inst.CallLater(ShowNext);
         }
 
-        internal override void OnToastOut(UIToast toast)
+        public override void OnToastOut(UIToast toast)
         {
             if (EnableShowWhenLastOut)
             {
@@ -67,7 +85,7 @@ namespace PluginSet.FGUI
             }
         }
 
-        internal override void OnToastRemove(UIToast toast)
+        public override void OnToastRemove(UIToast toast)
         {
             if (_currentToast == toast)
                 _currentToast = null;
