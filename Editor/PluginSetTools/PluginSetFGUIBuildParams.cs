@@ -22,6 +22,8 @@ namespace PluginSet.FGUI.Editor
         [Tooltip("运行时，是否将被点击的窗口提到最上层")]
         public bool bringWindowToFrontOnClick = false;
 
+        [Tooltip("禁止单词换行")]
+        public bool DisableWarpWorlds = false;
     }
     
 }

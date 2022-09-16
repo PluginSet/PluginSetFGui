@@ -50,6 +50,7 @@ namespace FairyGUI
         };
         static List<LineCharInfo> sLineChars = new List<LineCharInfo>();
 
+#if true
         /// <summary>
         /// 需要合写的字符
         /// </summary>
@@ -76,6 +77,7 @@ namespace FairyGUI
         {
             return !IsCoWriting(ch);
         }
+#endif
 
         public TextField()
         {
@@ -836,15 +838,15 @@ namespace FairyGUI
                         {
                             wordLen++;
                         }
-#if false
+#if !DISABLE_WARP_WORLD
                         else
                             wordPossible = false;
 #endif
                     }
-#if false
-                    else if (char.IsWhiteSpace(ch))
-#else
+#if DISABLE_WARP_WORLD
                     else if (char.IsWhiteSpace(ch) || IsIndependentWriting(ch))
+#else
+                    else if (char.IsWhiteSpace(ch))
 #endif
                     {
                         wordLen = 0;
@@ -904,11 +906,11 @@ namespace FairyGUI
                     }
                     else
                     {
-#if false
+#if DISABLE_WARP_WORLD
+                        continue;
+#else
                         toMoveChars = lineCharCount > 1 ? 1 : 0; //if only one char here, we cant move it to new line
                         UpdateLineInfo(line, letterSpacing, lineCharCount - toMoveChars);
-#else
-                        continue;
 #endif
                     }
 
