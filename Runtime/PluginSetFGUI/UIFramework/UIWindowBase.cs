@@ -15,6 +15,8 @@ namespace PluginSet.FGUI
 
         public virtual GComponent Component => contentPane;
 
+        public bool IsShown => !_hided;
+
 #if FAIRYGUI_PUERTS
         public Action __beforeCreate;
         public Action __beforeShown;
