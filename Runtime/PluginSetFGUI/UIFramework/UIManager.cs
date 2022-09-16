@@ -100,6 +100,20 @@ namespace PluginSet.FGUI
             });
         }
 
+        public static UIWindow FindWindow(string name)
+        {
+            return UIWindow.GetInstance(name);
+        }
+
+        public static bool IsWindowShown(string name, bool isStrict = true)
+        {
+            var window = FindWindow(name);
+            if (window == null)
+                return false;
+
+            return !isStrict || window.IsShown;
+        }
+
         public static UIWindow ShowOn(UILayer layer, string name, params object[] args)
         {
             if (!_windowInfos.TryGetValue(name, out var info))
