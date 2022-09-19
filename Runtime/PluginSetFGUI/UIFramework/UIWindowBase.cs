@@ -195,11 +195,16 @@ namespace PluginSet.FGUI
 
         protected virtual void DoEnter()
         {
-            
+#if FAIRYGUI_TOLUA
+            CallLua("DoEnter");
+#endif
         }
 
         protected virtual void DoExit()
         {
+#if FAIRYGUI_TOLUA
+            CallLua("DoExit");
+#endif
             Dispose();
         }
 
