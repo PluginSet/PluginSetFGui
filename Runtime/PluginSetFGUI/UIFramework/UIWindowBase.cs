@@ -120,7 +120,23 @@ namespace PluginSet.FGUI
         {
             _hided = false;
             DoEnter();
-            base.OnShown();
+        }
+        
+        protected virtual void DoEnter()
+        {
+//            base.OnShown();
+#if FAIRYGUI_TOLUA
+            CallLua("DoEnter");
+#endif
+        }
+
+        protected virtual void DoExit()
+        {
+#if FAIRYGUI_TOLUA
+            CallLua("DoExit");
+#endif
+//            base.OnHide();
+            Dispose();
         }
 
         protected override void OnHide()
@@ -131,7 +147,6 @@ namespace PluginSet.FGUI
                 BeforeHide();
             }
             _hided = true;
-            base.OnHide();
             DoExit();
         }
 
@@ -191,21 +206,6 @@ namespace PluginSet.FGUI
                 var cmp = UIObjectPool.Instance.Get(_url);
                 this.contentPane = (GComponent) cmp;
             }
-        }
-
-        protected virtual void DoEnter()
-        {
-#if FAIRYGUI_TOLUA
-            CallLua("DoEnter");
-#endif
-        }
-
-        protected virtual void DoExit()
-        {
-#if FAIRYGUI_TOLUA
-            CallLua("DoExit");
-#endif
-            Dispose();
         }
 
         protected virtual void OnDispose()
