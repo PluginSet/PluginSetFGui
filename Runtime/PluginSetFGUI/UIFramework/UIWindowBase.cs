@@ -33,7 +33,7 @@ namespace PluginSet.FGUI
         protected string[] _dependentPackages;
 
         private bool _asyncOpen;
-        private bool _hided = false;
+        private bool _hided = true;
 
         private List<UnionPackage> _depencies;
 
