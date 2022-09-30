@@ -131,6 +131,9 @@ namespace DragonBones
 
         public static bool IsValidDragonBonesAtlas(TextAsset asset)
         {
+            if (asset == null)
+                return false;
+            
             if (asset.text.IndexOf("\"SubTexture\"", StringComparison.Ordinal) > 0)
                 return true;
 
