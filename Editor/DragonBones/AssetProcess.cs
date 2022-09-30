@@ -139,6 +139,9 @@ namespace DragonBones
 
         public static bool IsValidDragonBonesData (TextAsset asset)
         {
+            if (asset == null)
+                return false;
+            
             if (asset.name.Contains("_ske"))
             {
                 return true;
