@@ -126,6 +126,8 @@ namespace DragonBones
                 ProcessTextureAtlasData(atlPaths);
             }
             
+            Debug.Log($"UnityEditor.CreateUnityData >>>>>>>>>>>>>> {string.Join(",", skeletonPaths)}");
+            
             UnityEditor.CreateUnityData(skeletonPaths);
         }
 
