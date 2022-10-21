@@ -92,11 +92,378 @@ namespace PluginSet.FGUI
                 if (!_autoResizeItem && _sizeLimit && (_layout == ListLayoutType.SingleColumn || _layout == ListLayoutType.SingleRow))
                     CheckSizeLimit();
                 
-                base.UpdateBounds();
+                BaseUpdateBounds();
                 return;
             }
             
             UpdateBoundsMatchAlign();
+        }
+        
+        protected void BaseUpdateBounds()
+        {
+            if (_virtual)
+                return;
+
+            int cnt = _children.Count;
+            int i;
+            int j = 0;
+            GObject child;
+            float curX = 0;
+            float curY = 0;
+            float cw, ch;
+            float maxWidth = 0;
+            float maxHeight = 0;
+            float viewWidth = this.viewWidth;
+            float viewHeight = this.viewHeight;
+            
+            var _usingLineGap = usingLineGap;
+            var _usingColumnGap = usingColummGap;
+
+            if (_layout == ListLayoutType.SingleColumn)
+            {
+                for (i = 0; i < cnt; i++)
+                {
+                    child = GetChildAt(i);
+                    if (foldInvisibleItems && !child.visible)
+                        continue;
+
+                    if (curY != 0)
+                        curY += _usingLineGap;
+//                    child.y = curY;
+                    child.SetXY(0f, curY);
+                    if (_autoResizeItem)
+                        child.SetSize(viewWidth, child.height, true);
+                    curY += Mathf.CeilToInt(child.height);
+                    if (child.width > maxWidth)
+                        maxWidth = child.width;
+                }
+
+                ch = curY;
+                if (ch <= viewHeight && _autoResizeItem && scrollPane != null && scrollPane._displayInDemand && scrollPane.vtScrollBar != null)
+                {
+                    viewWidth += scrollPane.vtScrollBar.width;
+                    for (i = 0; i < cnt; i++)
+                    {
+                        child = GetChildAt(i);
+                        if (foldInvisibleItems && !child.visible)
+                            continue;
+
+                        child.SetSize(viewWidth, child.height, true);
+                        if (child.width > maxWidth)
+                            maxWidth = child.width;
+                    }
+                }
+                cw = Mathf.CeilToInt(maxWidth);
+            }
+            else if (_layout == ListLayoutType.SingleRow)
+            {
+                for (i = 0; i < cnt; i++)
+                {
+                    child = GetChildAt(i);
+                    if (foldInvisibleItems && !child.visible)
+                        continue;
+
+                    if (curX != 0)
+                        curX += _usingColumnGap;
+//                    child.x = curX;
+                    child.SetXY(curX, 0f);
+                    if (_autoResizeItem)
+                        child.SetSize(child.width, viewHeight, true);
+                    curX += Mathf.CeilToInt(child.width);
+                    if (child.height > maxHeight)
+                        maxHeight = child.height;
+                }
+
+                cw = curX;
+                if (cw <= viewWidth && _autoResizeItem && scrollPane != null && scrollPane._displayInDemand && scrollPane.hzScrollBar != null)
+                {
+                    viewHeight += scrollPane.hzScrollBar.height;
+                    for (i = 0; i < cnt; i++)
+                    {
+                        child = GetChildAt(i);
+                        if (foldInvisibleItems && !child.visible)
+                            continue;
+
+                        child.SetSize(child.width, viewHeight, true);
+                        if (child.height > maxHeight)
+                            maxHeight = child.height;
+                    }
+                }
+                ch = Mathf.CeilToInt(maxHeight);
+            }
+            else if (_layout == ListLayoutType.FlowHorizontal)
+            {
+                if (_autoResizeItem && _columnCount > 0)
+                {
+                    float lineSize = 0;
+                    int lineStart = 0;
+                    float remainSize;
+                    float remainPercent;
+
+                    for (i = 0; i < cnt; i++)
+                    {
+                        child = GetChildAt(i);
+                        if (foldInvisibleItems && !child.visible)
+                            continue;
+
+                        lineSize += child.sourceWidth;
+                        j++;
+                        if (j == _columnCount || i == cnt - 1)
+                        {
+                            remainSize = viewWidth - (j - 1) * _usingColumnGap;
+                            remainPercent = 1;
+                            curX = 0;
+                            for (j = lineStart; j <= i; j++)
+                            {
+                                child = GetChildAt(j);
+                                if (foldInvisibleItems && !child.visible)
+                                    continue;
+
+                                child.SetXY(curX, curY);
+                                float perc = child.sourceWidth / lineSize;
+                                child.SetSize(Mathf.Round(perc / remainPercent * remainSize), child.height, true);
+                                remainSize -= child.width;
+                                remainPercent -= perc;
+                                curX += child.width + _usingColumnGap;
+
+                                if (child.height > maxHeight)
+                                    maxHeight = child.height;
+                            }
+                            //new line
+                            curY += Mathf.CeilToInt(maxHeight) + _usingLineGap;
+                            maxHeight = 0;
+                            j = 0;
+                            lineStart = i + 1;
+                            lineSize = 0;
+                        }
+                    }
+                    ch = curY + Mathf.CeilToInt(maxHeight);
+                    cw = viewWidth;
+                }
+                else
+                {
+                    for (i = 0; i < cnt; i++)
+                    {
+                        child = GetChildAt(i);
+                        if (foldInvisibleItems && !child.visible)
+                            continue;
+
+                        if (curX != 0)
+                            curX += _usingColumnGap;
+
+                        if (_columnCount != 0 && j >= _columnCount
+                            || _columnCount == 0 && curX + child.width > viewWidth && maxHeight != 0)
+                        {
+                            //new line
+                            curX = 0;
+                            curY += Mathf.CeilToInt(maxHeight) + _usingLineGap;
+                            maxHeight = 0;
+                            j = 0;
+                        }
+                        child.SetXY(curX, curY);
+                        curX += Mathf.CeilToInt(child.width);
+                        if (curX > maxWidth)
+                            maxWidth = curX;
+                        if (child.height > maxHeight)
+                            maxHeight = child.height;
+                        j++;
+                    }
+                    ch = curY + Mathf.CeilToInt(maxHeight);
+                    cw = Mathf.CeilToInt(maxWidth);
+                }
+            }
+            else if (_layout == ListLayoutType.FlowVertical)
+            {
+                if (_autoResizeItem && _lineCount > 0)
+                {
+                    float lineSize = 0;
+                    int lineStart = 0;
+                    float remainSize;
+                    float remainPercent;
+
+                    for (i = 0; i < cnt; i++)
+                    {
+                        child = GetChildAt(i);
+                        if (foldInvisibleItems && !child.visible)
+                            continue;
+
+                        lineSize += child.sourceHeight;
+                        j++;
+                        if (j == _lineCount || i == cnt - 1)
+                        {
+                            remainSize = viewHeight - (j - 1) * _usingLineGap;
+                            remainPercent = 1;
+                            curY = 0;
+                            for (j = lineStart; j <= i; j++)
+                            {
+                                child = GetChildAt(j);
+                                if (foldInvisibleItems && !child.visible)
+                                    continue;
+
+                                child.SetXY(curX, curY);
+                                float perc = child.sourceHeight / lineSize;
+                                child.SetSize(child.width, Mathf.Round(perc / remainPercent * remainSize), true);
+                                remainSize -= child.height;
+                                remainPercent -= perc;
+                                curY += child.height + _usingLineGap;
+
+                                if (child.width > maxWidth)
+                                    maxWidth = child.width;
+                            }
+                            //new line
+                            curX += Mathf.CeilToInt(maxWidth) + _usingColumnGap;
+                            maxWidth = 0;
+                            j = 0;
+                            lineStart = i + 1;
+                            lineSize = 0;
+                        }
+                    }
+                    cw = curX + Mathf.CeilToInt(maxWidth);
+                    ch = viewHeight;
+                }
+                else
+                {
+                    for (i = 0; i < cnt; i++)
+                    {
+                        child = GetChildAt(i);
+                        if (foldInvisibleItems && !child.visible)
+                            continue;
+
+                        if (curY != 0)
+                            curY += _usingLineGap;
+
+                        if (_lineCount != 0 && j >= _lineCount
+                            || _lineCount == 0 && curY + child.height > viewHeight && maxWidth != 0)
+                        {
+                            curY = 0;
+                            curX += Mathf.CeilToInt(maxWidth) + _usingColumnGap;
+                            maxWidth = 0;
+                            j = 0;
+                        }
+                        child.SetXY(curX, curY);
+                        curY += child.height;
+                        if (curY > maxHeight)
+                            maxHeight = curY;
+                        if (child.width > maxWidth)
+                            maxWidth = child.width;
+                        j++;
+                    }
+                    cw = curX + Mathf.CeilToInt(maxWidth);
+                    ch = Mathf.CeilToInt(maxHeight);
+                }
+            }
+            else //pagination
+            {
+                int page = 0;
+                int k = 0;
+                float eachHeight = 0;
+                if (_autoResizeItem && _lineCount > 0)
+                    eachHeight = Mathf.Floor((viewHeight - (_lineCount - 1) * _usingLineGap) / _lineCount);
+
+                if (_autoResizeItem && _columnCount > 0)
+                {
+                    float lineSize = 0;
+                    int lineStart = 0;
+                    float remainSize;
+                    float remainPercent;
+
+                    for (i = 0; i < cnt; i++)
+                    {
+                        child = GetChildAt(i);
+                        if (foldInvisibleItems && !child.visible)
+                            continue;
+
+                        if (j == 0 && (_lineCount != 0 && k >= _lineCount
+                            || _lineCount == 0 && curY + (_lineCount > 0 ? eachHeight : child.height) > viewHeight))
+                        {
+                            //new page
+                            page++;
+                            curY = 0;
+                            k = 0;
+                        }
+
+                        lineSize += child.sourceWidth;
+                        j++;
+                        if (j == _columnCount || i == cnt - 1)
+                        {
+                            remainSize = viewWidth - (j - 1) * _usingColumnGap;
+                            remainPercent = 1;
+                            curX = 0;
+                            for (j = lineStart; j <= i; j++)
+                            {
+                                child = GetChildAt(j);
+                                if (foldInvisibleItems && !child.visible)
+                                    continue;
+
+                                child.SetXY(page * viewWidth + curX, curY);
+                                float perc = child.sourceWidth / lineSize;
+                                child.SetSize(Mathf.Round(perc / remainPercent * remainSize), _lineCount > 0 ? eachHeight : child.height, true);
+                                remainSize -= child.width;
+                                remainPercent -= perc;
+                                curX += child.width + _usingColumnGap;
+
+                                if (child.height > maxHeight)
+                                    maxHeight = child.height;
+                            }
+                            //new line
+                            curY += Mathf.CeilToInt(maxHeight) + _usingLineGap;
+                            maxHeight = 0;
+                            j = 0;
+                            lineStart = i + 1;
+                            lineSize = 0;
+
+                            k++;
+                        }
+                    }
+                }
+                else
+                {
+                    for (i = 0; i < cnt; i++)
+                    {
+                        child = GetChildAt(i);
+                        if (foldInvisibleItems && !child.visible)
+                            continue;
+
+                        if (curX != 0)
+                            curX += _usingColumnGap;
+
+                        if (_autoResizeItem && _lineCount > 0)
+                            child.SetSize(child.width, eachHeight, true);
+
+                        if (_columnCount != 0 && j >= _columnCount
+                            || _columnCount == 0 && curX + child.width > viewWidth && maxHeight != 0)
+                        {
+                            curX = 0;
+                            curY += maxHeight + _usingLineGap;
+                            maxHeight = 0;
+                            j = 0;
+                            k++;
+
+                            if (_lineCount != 0 && k >= _lineCount
+                                || _lineCount == 0 && curY + child.height > viewHeight && maxWidth != 0)//new page
+                            {
+                                page++;
+                                curY = 0;
+                                k = 0;
+                            }
+                        }
+                        child.SetXY(page * viewWidth + curX, curY);
+                        curX += Mathf.CeilToInt(child.width);
+                        if (curX > maxWidth)
+                            maxWidth = curX;
+                        if (child.height > maxHeight)
+                            maxHeight = child.height;
+                        j++;
+                    }
+                }
+                ch = page > 0 ? viewHeight : (curY + Mathf.CeilToInt(maxHeight));
+                cw = (page + 1) * viewWidth;
+            }
+
+            HandleAlign(cw, ch);
+            SetBounds(0, 0, cw, ch);
+
+            InvalidateBatchingState(true);
         }
 
         protected void CheckSizeLimit()
@@ -150,7 +517,7 @@ namespace PluginSet.FGUI
             float viewHeight = this.viewHeight;
 
             var _usingLineGap = usingLineGap;
-            var _usingColummGap = usingColummGap;
+            var _usingColumnGap = usingColummGap;
 
             if (_layout == ListLayoutType.FlowVertical)
             {
@@ -199,7 +566,7 @@ namespace PluginSet.FGUI
                                     maxWidth = child.width;
                             }
                             //new line
-                            curX += Mathf.CeilToInt(maxWidth) + _usingColummGap;
+                            curX += Mathf.CeilToInt(maxWidth) + _usingColumnGap;
                             maxWidth = 0;
                             j = 0;
                             lineStart = i + 1;
@@ -237,7 +604,7 @@ namespace PluginSet.FGUI
                             || _lineCount == 0 && curY + child.height > viewHeight && maxWidth != 0)
                         {
                             curY = 0;
-                            curX += Mathf.CeilToInt(maxWidth) + _usingColummGap;
+                            curX += Mathf.CeilToInt(maxWidth) + _usingColumnGap;
                             maxWidth = 0;
                             j = 0;
                             lineStart = i;
@@ -296,7 +663,7 @@ namespace PluginSet.FGUI
                         j++;
                         if (j == _columnCount || i == cnt - 1)
                         {
-                            remainSize = viewWidth - (j - 1) * _usingColummGap;
+                            remainSize = viewWidth - (j - 1) * _usingColumnGap;
                             remainPercent = 1;
                             if (_align == AlignType.Right)
                                 curX = viewWidth;
@@ -316,9 +683,9 @@ namespace PluginSet.FGUI
                                 remainSize -= child.width;
                                 remainPercent -= perc;
                                 if (_align == AlignType.Right)
-                                    curX -= _usingColummGap;
+                                    curX -= _usingColumnGap;
                                 else
-                                    curX += child.width + _usingColummGap;
+                                    curX += child.width + _usingColumnGap;
 
                                 if (child.height > maxHeight)
                                     maxHeight = child.height;
@@ -359,7 +726,7 @@ namespace PluginSet.FGUI
                             continue;
 
                         if (curX != 0)
-                            curX += _usingColummGap;
+                            curX += _usingColumnGap;
 
                         if (_columnCount != 0 && j >= _columnCount
                             || _columnCount == 0 && curX + child.width > viewWidth && maxHeight != 0)
