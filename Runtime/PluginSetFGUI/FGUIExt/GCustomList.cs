@@ -1,3 +1,4 @@
+using System;
 using FairyGUI;
 using FairyGUI.Utils;
 using UnityEngine;
@@ -28,7 +29,13 @@ namespace PluginSet.FGUI
         protected float _maxSize;
 
         public bool listSizeFollowContainer = false;
-        
+
+        private float _limitedLineGap;
+        private float _limitedColumnGap;
+
+        protected float usingLineGap => _sizeLimit ? _limitedLineGap : _lineGap;
+        protected float usingColummGap => _sizeLimit ? _limitedColumnGap : _columnGap;
+
         public void SetMatchAlign(bool match)
         {
             if (_matchAlign == match)
@@ -54,6 +61,8 @@ namespace PluginSet.FGUI
             _sizeLimit = true;
             _maxSize = maxSize;
             _maxGap = maxGap;
+            _limitedLineGap = _lineGap;
+            _limitedColumnGap = _columnGap;
         }
 
         public void ClearSizeLimit()
@@ -114,10 +123,16 @@ namespace PluginSet.FGUI
             if ((itemTotalSize + (itemCount - 1) * _maxGap) > _maxSize)
                 targetGap = (_maxSize - itemTotalSize) / (itemCount - 1);
 
-            if (_layout == ListLayoutType.SingleColumn)
+            if (_layout == ListLayoutType.SingleColumn && Math.Abs(_limitedLineGap - targetGap) > 0.1f)
+            {
+                _limitedLineGap = targetGap;
                 lineGap = Mathf.FloorToInt(targetGap);
-            else if (_layout == ListLayoutType.SingleRow)
+            }
+            else if (_layout == ListLayoutType.SingleRow && Math.Abs(_limitedColumnGap - targetGap) > 0.1f)
+            {
+                _limitedColumnGap = targetGap;
                 columnGap = Mathf.FloorToInt(targetGap);
+            }
         }
 
         protected void UpdateBoundsMatchAlign()
@@ -133,6 +148,9 @@ namespace PluginSet.FGUI
             float maxHeight = 0;
             float viewWidth = this.viewWidth;
             float viewHeight = this.viewHeight;
+
+            var _usingLineGap = usingLineGap;
+            var _usingColummGap = usingColummGap;
 
             if (_layout == ListLayoutType.FlowVertical)
             {
@@ -153,7 +171,7 @@ namespace PluginSet.FGUI
                         j++;
                         if (j == _lineCount || i == cnt - 1)
                         {
-                            remainSize = viewHeight - (j - 1) * _lineGap;
+                            remainSize = viewHeight - (j - 1) * _usingLineGap;
                             remainPercent = 1;
                             if (_verticalAlign == VertAlignType.Bottom)
                                 curY = viewHeight;
@@ -173,15 +191,15 @@ namespace PluginSet.FGUI
                                 remainSize -= child.height;
                                 remainPercent -= perc;
                                 if (_verticalAlign == VertAlignType.Bottom)
-                                    curY -= _lineGap;
+                                    curY -= _usingLineGap;
                                 else
-                                    curY += child.height + _lineGap;
+                                    curY += child.height + _usingLineGap;
 
                                 if (child.width > maxWidth)
                                     maxWidth = child.width;
                             }
                             //new line
-                            curX += Mathf.CeilToInt(maxWidth) + _columnGap;
+                            curX += Mathf.CeilToInt(maxWidth) + _usingColummGap;
                             maxWidth = 0;
                             j = 0;
                             lineStart = i + 1;
@@ -213,13 +231,13 @@ namespace PluginSet.FGUI
                             continue;
 
                         if (curY != 0)
-                            curY += _lineGap;
+                            curY += _usingLineGap;
 
                         if (_lineCount != 0 && j >= _lineCount
                             || _lineCount == 0 && curY + child.height > viewHeight && maxWidth != 0)
                         {
                             curY = 0;
-                            curX += Mathf.CeilToInt(maxWidth) + _columnGap;
+                            curX += Mathf.CeilToInt(maxWidth) + _usingColummGap;
                             maxWidth = 0;
                             j = 0;
                             lineStart = i;
@@ -278,7 +296,7 @@ namespace PluginSet.FGUI
                         j++;
                         if (j == _columnCount || i == cnt - 1)
                         {
-                            remainSize = viewWidth - (j - 1) * _columnGap;
+                            remainSize = viewWidth - (j - 1) * _usingColummGap;
                             remainPercent = 1;
                             if (_align == AlignType.Right)
                                 curX = viewWidth;
@@ -298,15 +316,15 @@ namespace PluginSet.FGUI
                                 remainSize -= child.width;
                                 remainPercent -= perc;
                                 if (_align == AlignType.Right)
-                                    curX -= _columnGap;
+                                    curX -= _usingColummGap;
                                 else
-                                    curX += child.width + _columnGap;
+                                    curX += child.width + _usingColummGap;
 
                                 if (child.height > maxHeight)
                                     maxHeight = child.height;
                             }
                             //new line
-                            curY += Mathf.CeilToInt(maxHeight) + _lineGap;
+                            curY += Mathf.CeilToInt(maxHeight) + _usingLineGap;
                             maxHeight = 0;
                             j = 0;
                             lineStart = i + 1;
@@ -341,14 +359,14 @@ namespace PluginSet.FGUI
                             continue;
 
                         if (curX != 0)
-                            curX += _columnGap;
+                            curX += _usingColummGap;
 
                         if (_columnCount != 0 && j >= _columnCount
                             || _columnCount == 0 && curX + child.width > viewWidth && maxHeight != 0)
                         {
                             //new line
                             curX = 0;
-                            curY += Mathf.CeilToInt(maxHeight) + _lineGap;
+                            curY += Mathf.CeilToInt(maxHeight) + _usingLineGap;
                             maxHeight = 0;
                             j = 0;
                             columnStart = i;
