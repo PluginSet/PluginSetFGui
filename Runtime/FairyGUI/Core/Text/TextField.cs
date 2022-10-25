@@ -766,6 +766,7 @@ namespace FairyGUI
             line.y = line.y2 = GUTTER_Y;
             sLineChars.Clear();
 
+            var disableWrapWorld = _autoSize == AutoSizeType.Shrink;
             for (int charIndex = 0; charIndex < textLength; charIndex++)
             {
                 char ch = _parsedText[charIndex];
@@ -829,7 +830,8 @@ namespace FairyGUI
                             || format.specialStyle == TextFormat.SpecialStyle.Superscript
                             || _textDirection != RTLSupport.DirectionType.UNKNOW && RTLSupport.IsArabicLetter(ch))
 #else
-                        else if (IsCoWriting(ch)
+                        else if ((disableWrapWorld && IsCoWriting(ch))
+                            || (!disableWrapWorld && (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9'))
                             || ch == '.' || ch == '"' || ch == '\''
                             || format.specialStyle == TextFormat.SpecialStyle.Subscript
                             || format.specialStyle == TextFormat.SpecialStyle.Superscript
@@ -838,16 +840,12 @@ namespace FairyGUI
                         {
                             wordLen++;
                         }
-#if !DISABLE_WARP_WORLD
-                        else
+                        else if (!disableWrapWorld)
+                        {
                             wordPossible = false;
-#endif
+                        }
                     }
-#if DISABLE_WARP_WORLD
-                    else if (char.IsWhiteSpace(ch) || IsIndependentWriting(ch))
-#else
-                    else if (char.IsWhiteSpace(ch))
-#endif
+                    else if (char.IsWhiteSpace(ch) || (disableWrapWorld && IsIndependentWriting(ch)))
                     {
                         wordLen = 0;
                         wordPossible = true;
@@ -904,14 +902,14 @@ namespace FairyGUI
                         UpdateLineInfo(line, letterSpacing, lineCharCount - (toMoveChars + 1));
                         line.charCount++; //but keep it in this line.
                     }
-                    else
+                    else if (!disableWrapWorld)
                     {
-#if DISABLE_WARP_WORLD
-                        continue;
-#else
                         toMoveChars = lineCharCount > 1 ? 1 : 0; //if only one char here, we cant move it to new line
                         UpdateLineInfo(line, letterSpacing, lineCharCount - toMoveChars);
-#endif
+                    }
+                    else
+                    {
+                        continue;
                     }
 
                     LineInfo newLine = LineInfo.Borrow();
