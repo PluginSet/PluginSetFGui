@@ -29,9 +29,6 @@ namespace PluginSet.FGUI.Editor
             if (buildParams.EnableTMPro)
                 context.Symbols.Add("FAIRYGUI_TMPRO");
             
-            if (buildParams.DisableWarpWorlds)
-                context.Symbols.Add("DISABLE_WARP_WORLD");
-        
             var pluginConfig = context.Get<PluginSetConfig>("pluginsConfig");
             var config = pluginConfig.Get<PluginFairyGuiConfig>("FGUI");
             config.packagesInStartScene = buildParams.packagesInStartScene;
