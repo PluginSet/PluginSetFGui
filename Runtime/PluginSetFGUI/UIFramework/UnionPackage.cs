@@ -72,6 +72,22 @@ namespace PluginSet.FGUI
             return _allBranchPackages.Contains(packageName);
         }
 
+        public static bool IsUnionPackageLoaded(string name)
+        {
+            return _loadedPackages.ContainsKey(name);
+        }
+
+        public static bool RetainIfLoaded(string name)
+        {
+            if (_loadedPackages.TryGetValue(name, out var loaded))
+            {
+                loaded.Retain();
+                return true;
+            }
+
+            return false;
+        }
+
         public static UnionPackage RetainUnionPackage(string name)
         {
             if (_loadedPackages.TryGetValue(name, out var loaded))
