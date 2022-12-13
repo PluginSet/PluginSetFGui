@@ -16,6 +16,8 @@ namespace PluginSet.FGUI
         public virtual GComponent Component => contentPane;
 
         public bool IsShown => !_hided;
+        
+        private bool _inited = false;
 
 #if FAIRYGUI_PUERTS
         public Action __beforeCreate;
@@ -88,6 +90,10 @@ namespace PluginSet.FGUI
 
         protected override void OnInit()
         {
+            if (!isShowing)  // 被强制关闭了
+                return;
+                
+            _inited = true;
             DoCreate();
             OnCreate();
             base.OnInit();
@@ -147,7 +153,8 @@ namespace PluginSet.FGUI
                 BeforeHide();
             }
             _hided = true;
-            DoExit();
+            if (_inited)
+                DoExit();
         }
 
         protected override void DoHideAnimation()
@@ -226,11 +233,13 @@ namespace PluginSet.FGUI
                 UIObjectPool.Instance.Put(cmp);
             }
 
-            foreach (var pkg in _depencies)
+            if (_depencies != null)
             {
-                UnionPackage.ReleaseUnionPackage(pkg);
+                foreach (var pkg in _depencies)
+                {
+                    UnionPackage.ReleaseUnionPackage(pkg);
+                }
             }
-
         }
         
         protected override void LayoutModalWaitPane()
