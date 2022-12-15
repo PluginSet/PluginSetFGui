@@ -1,5 +1,3 @@
-
-using System.Linq;
 #if FAIRYGUI_DRAGONBONES
 
 /**
@@ -24,6 +22,7 @@ using System.Linq;
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using PluginSet.Core;
@@ -33,7 +32,7 @@ using UnityEditor.SceneManagement;
 
 namespace DragonBones
 {
-    public class UnityEditor
+    public class UnityEditorImporter
     {
         [MenuItem("GameObject/DragonBones/Armature Object", false, 10)]
         private static void _CreateArmatureObjectMenuItem()
@@ -199,11 +198,11 @@ namespace DragonBones
             if (dragonBoneJSON != null)
             {
                 var textureAtlasJSONs = new List<string>();
-                UnityEditor.GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(dragonBoneJSON.GetInstanceID()));
+                GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(dragonBoneJSON.GetInstanceID()));
 
-                UnityDragonBonesData.TextureAtlas[] textureAtlas = UnityEditor.GetTextureAtlasByJSONs(textureAtlasJSONs);
+                UnityDragonBonesData.TextureAtlas[] textureAtlas = GetTextureAtlasByJSONs(textureAtlasJSONs);
 
-                UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(dragonBoneJSON, textureAtlas);
+                UnityDragonBonesData data = CreateUnityDragonBonesData(dragonBoneJSON, textureAtlas);
                 _armatureComponent.unityData = data;
 
                 var dragonBonesData = UnityFactory.factory.LoadData(data, _armatureComponent.isUGUI);

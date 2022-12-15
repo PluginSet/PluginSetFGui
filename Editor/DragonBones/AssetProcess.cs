@@ -1,6 +1,3 @@
-
-﻿using System;
- using System.Diagnostics.CodeAnalysis;
 #if FAIRYGUI_DRAGONBONES
 
 /**
@@ -25,7 +22,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- using UnityEngine;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEditor;
 using System.IO;
@@ -128,7 +127,7 @@ namespace DragonBones
             
             Debug.Log($"UnityEditor.CreateUnityData >>>>>>>>>>>>>> {string.Join(",", skeletonPaths)}");
             
-            UnityEditor.CreateUnityData(skeletonPaths);
+            UnityEditorImporter.CreateUnityData(skeletonPaths);
         }
 
         public static bool IsValidDragonBonesAtlas(TextAsset asset)

@@ -113,7 +113,7 @@ namespace DragonBones
                 UnityFactory.factory.RefreshAllTextureAtlas(_armatureComponent);
 
                 // Refresh armature.
-                UnityEditor.ChangeArmatureData(_armatureComponent, _armatureComponent.armatureName, dragonBonesData.name);
+                UnityEditorImporter.ChangeArmatureData(_armatureComponent, _armatureComponent.armatureName, dragonBonesData.name);
 
                 // Refresh texture.
                 _armatureComponent.armature.InvalidUpdate(null, true);
@@ -196,7 +196,7 @@ namespace DragonBones
                 ClearUp();
                 _armatureComponent.animationName = null;
 
-                if (UnityEditor.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
+                if (UnityEditorImporter.ChangeDragonBonesData(_armatureComponent, _armatureComponent.unityData.dragonBonesJSON))
                 {
                     _UpdateParameters();
                 }
@@ -218,7 +218,7 @@ namespace DragonBones
                         _armatureIndex = armatureIndex;
 
                         var armatureName = _armatureNames[_armatureIndex];
-                        UnityEditor.ChangeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
+                        UnityEditorImporter.ChangeArmatureData(_armatureComponent, armatureName, dragonBonesData.name);
                         _UpdateParameters();
 
                         _armatureComponent.gameObject.name = armatureName;

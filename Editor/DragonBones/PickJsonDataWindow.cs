@@ -122,10 +122,10 @@ namespace DragonBones
         private void SetUnityDragonBonesData()
         {
             List<string> textureAtlasJSONs = new List<string>();
-            UnityEditor.GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(_dragonBoneJSONData.GetInstanceID()));
-            UnityDragonBonesData.TextureAtlas[] textureAtlas = UnityEditor.GetTextureAtlasByJSONs(textureAtlasJSONs);
+            UnityEditorImporter.GetTextureAtlasConfigs(textureAtlasJSONs, AssetDatabase.GetAssetPath(_dragonBoneJSONData.GetInstanceID()));
+            UnityDragonBonesData.TextureAtlas[] textureAtlas = UnityEditorImporter.GetTextureAtlasByJSONs(textureAtlasJSONs);
 
-            UnityDragonBonesData data = UnityEditor.CreateUnityDragonBonesData(_dragonBoneJSONData, textureAtlas);
+            UnityDragonBonesData data = UnityEditorImporter.CreateUnityDragonBonesData(_dragonBoneJSONData, textureAtlas);
             _armatureComp.unityData = data;
         }
     }

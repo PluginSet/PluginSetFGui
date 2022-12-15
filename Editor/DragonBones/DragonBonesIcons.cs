@@ -1,5 +1,4 @@
 #if FAIRYGUI_DRAGONBONES
-
 /**
  * The MIT License (MIT)
  *
