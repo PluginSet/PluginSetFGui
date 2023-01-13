@@ -36,6 +36,7 @@ namespace PluginSet.FGUI
 
         private bool _asyncOpen;
         private bool _hided = true;
+        private bool _hiding = false;
 
         private List<UnionPackage> _depencies;
 
@@ -164,6 +165,9 @@ namespace PluginSet.FGUI
                 _hided = true;
                 BeforeHide();
             }
+
+            if (_hiding) return;
+            _hiding = true;
             if (ExitTransition != null)
             {
                 ExitTransition.Play(HideImmediately);
