@@ -139,7 +139,7 @@ namespace PluginSet.FGUI
             if (!request.url.Equals(_requestUrl))
                 return;
             
-            if (request.isNetworkError || request.isHttpError)
+            if (request.result != UnityWebRequest.Result.Success)
             {
                 Logger.Warn("Fail download texture with url " + _requestUrl);
                 if (!_disposed)
