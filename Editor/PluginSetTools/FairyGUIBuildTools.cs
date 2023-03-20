@@ -18,7 +18,7 @@ namespace PluginSet.FGUI.Editor
 //            context.Symbols.Add("FAIRYGUI_PUERTS");
             context.AddLinkAssembly("PluginSet.FairyGUI");
             
-            var buildParams = context.BuildChannels.Get<PluginSetFGUIBuildParams>("FGUI");
+            var buildParams = context.BuildChannels.Get<PluginSetFGUIBuildParams>();
             if (buildParams.EnableSpine)
                 if (CheckSpineLibImported())
                     context.Symbols.Add("FAIRYGUI_SPINE");
@@ -30,7 +30,7 @@ namespace PluginSet.FGUI.Editor
                 context.Symbols.Add("FAIRYGUI_TMPRO");
             
             var pluginConfig = context.Get<PluginSetConfig>("pluginsConfig");
-            var config = pluginConfig.Get<PluginFairyGuiConfig>("FGUI");
+            var config = pluginConfig.Get<PluginFairyGuiConfig>();
             config.packagesInStartScene = buildParams.packagesInStartScene;
             config.bringWindowToFrontOnClick = buildParams.bringWindowToFrontOnClick;
         }

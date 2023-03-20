@@ -56,10 +56,10 @@ namespace PluginSet.FGUI.Editor
         [OnSyncEditorSetting]
         public static void OnSyncEditorSetting(BuildProcessorContext context)
         {
-            var buildParams = context.BuildChannels.Get<PluginSetFGUIConfig>("FGUIConfig");
+            var buildParams = context.BuildChannels.Get<PluginSetFGUIConfig>();
             
             var pluginConfig = context.Get<PluginSetConfig>("pluginsConfig");
-            var config = pluginConfig.Get<PluginFairyGuiConfig>("FGUI");
+            var config = pluginConfig.AddConfig<PluginFairyGuiConfig>("FGUI");
             config.UIConfigItems = buildParams.Items;
             config.scaleMode = buildParams.scaleMode;
             config.screenMatchMode = buildParams.screenMatchMode;

@@ -19,7 +19,7 @@ namespace PluginSet.FGUI
 
         protected override void Init(PluginSetConfig config)
         {
-            var setting = config.Get<PluginFairyGuiConfig>("FGUI");
+            var setting = config.Get<PluginFairyGuiConfig>();
 
             var fguiObject = new GameObject("FairyGUI");
             fguiObject.SetActive(false);

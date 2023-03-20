@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace PluginSet.FGUI
 {
-    [PluginSetConfig("FGUI")]
     public class PluginFairyGuiConfig: ScriptableObject
     {
         public string[] packagesInStartScene;

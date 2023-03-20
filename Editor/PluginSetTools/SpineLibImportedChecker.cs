@@ -14,7 +14,7 @@ namespace PluginSet.FGUI.Editor
                 return;
             
             var buildChannels = EditorSetting.CurrentBuildChannel;
-            var buildParams = buildChannels.Get<PluginSetFGUIBuildParams>("FGUI");
+            var buildParams = buildChannels.Get<PluginSetFGUIBuildParams>();
             if (buildParams && buildParams.EnableSpine)
             {
                 FairyGUIBuildTools.CheckSpineLibImported();
