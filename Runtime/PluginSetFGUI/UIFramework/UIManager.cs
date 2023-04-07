@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using FairyGUI;
 using PluginSet.Core;
+using UnityEngine;
+using Logger = PluginSet.Core.Logger;
 
 namespace PluginSet.FGUI
 {
@@ -56,6 +58,14 @@ namespace PluginSet.FGUI
             {
                 layer.ApplySafeArea();
             }
+        }
+
+        public static void ApplyViewRotation(int rotation)
+        {
+            Stage.inst.rotation = rotation;
+//            var transform = StageCamera.main.transform;
+//            var localPosition = transform.localPosition;
+//            transform.localPosition = new Vector3(localPosition.x * Math.Cos());
         }
 
         public static void Purge()
