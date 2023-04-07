@@ -60,12 +60,25 @@ namespace PluginSet.FGUI
             }
         }
 
+        /// <summary>
+        /// rotate stage view
+        /// </summary>
+        /// <param name="rotation">90 * n</param>
         public static void ApplyViewRotation(int rotation)
         {
             Stage.inst.rotation = rotation;
-//            var transform = StageCamera.main.transform;
-//            var localPosition = transform.localPosition;
-//            transform.localPosition = new Vector3(localPosition.x * Math.Cos());
+            var transform = StageCamera.main.transform;
+            var localPosition = transform.localPosition;
+            var scaleX = 1;
+            var scaleY = 1;
+            var index = (rotation / 90) % 4;
+            if (index < 0)
+                index += 4;
+            if (index >= 1 && index <= 2)
+                scaleX = -1;
+            if (index > 1)
+                scaleY = -1;
+            transform.localPosition = new Vector3(localPosition.x * scaleX, localPosition.y * scaleY, localPosition.z);
         }
 
         public static void Purge()
