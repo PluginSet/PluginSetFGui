@@ -34,6 +34,8 @@ namespace PluginSet.FGUI
 
         private static bool _inited = false;
         private static string _defaultToastUrl;
+
+        private static int _viewRotation = 0;
         
         private static void Init()
         {
@@ -49,15 +51,12 @@ namespace PluginSet.FGUI
         public static void InitWithSafeArea(float x, float y, float w, float h)
         {
             UILayer.SetSafeArea(x, y, w, h);
-            Init();
-        }
-
-        public static void ApplySafeArea()
-        {
             foreach (var layer in _layers)
             {
                 layer.ApplySafeArea();
             }
+            
+            Init();
         }
 
         /// <summary>
@@ -66,6 +65,10 @@ namespace PluginSet.FGUI
         /// <param name="rotation">90 * n</param>
         public static void ApplyViewRotation(int rotation)
         {
+            if (_viewRotation == rotation)
+                return;
+
+            _viewRotation = rotation;
             Stage.inst.rotation = rotation;
             var transform = StageCamera.main.transform;
             var localPosition = transform.localPosition;
@@ -78,6 +81,7 @@ namespace PluginSet.FGUI
                 scaleX = -1;
             if (index > 1)
                 scaleY = -1;
+            
             transform.localPosition = new Vector3(localPosition.x * scaleX, localPosition.y * scaleY, localPosition.z);
         }
 

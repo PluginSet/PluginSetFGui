@@ -75,13 +75,7 @@ namespace PluginSet.FGUI
             _areaHeight = Mathf.Ceil(h / _scale);
 
             UIContentScaler.scaleFactor = _scale;
-            var gRoot = GRoot.inst;
-            gRoot.ApplyContentScaleFactor();
-            foreach (var child in gRoot._children)
-            {
-                var layer = (UILayer) child;
-                layer?.ApplySafeArea();
-            }
+            GRoot.inst.ApplyContentScaleFactor();
         }
 
         private static void CheckSafeArea()
