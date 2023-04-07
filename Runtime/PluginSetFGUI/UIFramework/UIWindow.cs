@@ -70,9 +70,15 @@ namespace PluginSet.FGUI
 
         protected override void OnCreate()
         {
-            if (!modal)
+            if (modal)
             {
-                SetSize(root.width, root.height);
+                AddRelation(parent, RelationType.Center_Center);
+            }
+            else
+            {
+                var rootPanel = root;
+                SetSize(rootPanel.width, rootPanel.height);
+                AddRelation(rootPanel, RelationType.Size);
             }
             
             OnUIInit();

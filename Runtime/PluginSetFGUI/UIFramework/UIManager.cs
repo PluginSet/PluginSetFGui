@@ -50,6 +50,14 @@ namespace PluginSet.FGUI
             Init();
         }
 
+        public static void ApplySafeArea()
+        {
+            foreach (var layer in _layers)
+            {
+                layer.ApplySafeArea();
+            }
+        }
+
         public static void Purge()
         {
             LayerView = null;

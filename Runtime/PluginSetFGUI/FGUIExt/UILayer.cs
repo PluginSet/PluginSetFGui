@@ -103,7 +103,6 @@ namespace PluginSet.FGUI
             
             ApplySafeArea();
             Stage.inst.ApplyPanelOrder(rootContainer);
-            InitModalLayer();
         }
 
         public void ApplySafeArea()
@@ -111,6 +110,7 @@ namespace PluginSet.FGUI
             this.SetXY(_offsetX, _offsetY);
             this.SetSize(_areaWith, _areaHeight);
             this.SetScale(_scale, _scale);
+            this.InitModalLayer();
         }
 
         private void InitModalLayer()
