@@ -12,14 +12,14 @@ namespace PluginSet.FGUI
         private static float _offsetY;
 
         private static bool _calculated = false;
-
+        
         /// <summary>
         /// 设置安全区域
         /// </summary>
         /// <param name="x">屏幕左方偏移</param>
         /// <param name="y">屏幕上方偏移</param>
-        /// <param name="w">屏幕宽度</param>
-        /// <param name="h">屏幕高度</param>
+        /// <param name="w">安全区域屏幕宽度</param>
+        /// <param name="h">安全区域屏幕高度</param>
         public static void SetSafeArea(float x, float y, float w, float h)
         {
             _calculated = false;
@@ -27,7 +27,28 @@ namespace PluginSet.FGUI
             _calculated = true;
         }
 
+        /// <summary>
+        /// 设置安全区域
+        /// </summary>
+        /// <param name="x">屏幕左方偏移</param>
+        /// <param name="y">屏幕上方偏移</param>
+        /// <param name="w">安全区域屏幕宽度</param>
+        /// <param name="h">安全区域屏幕高度</param>
+        /// <param name="sw">屏幕宽度</param>
+        /// <param name="sh">屏幕高度</param>
+        public static void SetSafeArea(float x, float y, float w, float h, float sw, float sh)
+        {
+            _calculated = false;
+            CalculateSafeArea(x, y, w, h, sw, sh);
+            _calculated = true;
+        }
+
         private static void CalculateSafeArea(float x, float y, float w, float h)
+        {
+            CalculateSafeArea(x, y, w, h, Screen.width, Screen.height);
+        }
+
+        private static void CalculateSafeArea(float x, float y, float w, float h, float sw, float sh)
         {
             _offsetX = x;
             _offsetY = y;
@@ -39,8 +60,8 @@ namespace PluginSet.FGUI
             }
             else
             {
-                var screenWith = Screen.width;
-                var screenHeight = Screen.height;
+                var screenWith = sw;
+                var screenHeight = sh;
                 var designWith = scaler.designResolutionX;
                 var designHeight = scaler.designResolutionY;
                 var matchMode = scaler.screenMatchMode;
@@ -75,10 +96,8 @@ namespace PluginSet.FGUI
             _areaHeight = Mathf.Ceil(h / _scale);
 
             UIContentScaler.scaleFactor = _scale;
-            var gRoot = GRoot.inst;
-            gRoot.SetXY(_offsetX, _offsetY);
-            gRoot.SetSize(_areaWith, _areaHeight);
-            gRoot.ApplyContentScaleFactor();
+            Stage.inst.SetSize(sw, sh);
+            GRoot.inst.ApplyContentScaleFactor();
         }
 
         private static void CheckSafeArea()
@@ -98,8 +117,8 @@ namespace PluginSet.FGUI
             this.sortingOrder = sortingOrder;
             rootContainer._panelOrder = sortingOrder;
             
-            ApplySafeArea();
             Stage.inst.ApplyPanelOrder(rootContainer);
+            ApplySafeArea();
         }
 
         public void ApplySafeArea()

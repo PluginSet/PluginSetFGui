@@ -35,8 +35,6 @@ namespace PluginSet.FGUI
         private static bool _inited = false;
         private static string _defaultToastUrl;
 
-        private static int _viewRotation = 0;
-        
         private static void Init()
         {
             if (_inited) return;
@@ -47,10 +45,15 @@ namespace PluginSet.FGUI
             LayerToast = AddLayer("LayerToast", ToastLayerOrder);
             LayerLoading = AddLayer("LayerLoading", LoadingLayerOrder);
         }
-
+        
         public static void InitWithSafeArea(float x, float y, float w, float h)
         {
-            UILayer.SetSafeArea(x, y, w, h);
+            InitWithSafeArea(x, y, w, h, Screen.width, Screen.height);
+        }
+
+        public static void InitWithSafeArea(float x, float y, float w, float h, float sw, float sh)
+        {
+            UILayer.SetSafeArea(x, y, w, h, sw, sh);
             foreach (var layer in _layers)
             {
                 layer.ApplySafeArea();
@@ -65,24 +68,19 @@ namespace PluginSet.FGUI
         /// <param name="rotation">90 * n</param>
         public static void ApplyViewRotation(int rotation)
         {
-            if (_viewRotation == rotation)
-                return;
-
-            _viewRotation = rotation;
             Stage.inst.rotation = rotation;
-            var transform = StageCamera.main.transform;
-            var localPosition = transform.localPosition;
             var scaleX = 1;
-            var scaleY = 1;
+            var scaleY = -1;
             var index = (rotation / 90) % 4;
             if (index < 0)
                 index += 4;
             if (index >= 1 && index <= 2)
                 scaleX = -1;
             if (index > 1)
-                scaleY = -1;
-            
-            transform.localPosition = new Vector3(localPosition.x * scaleX, localPosition.y * scaleY, localPosition.z);
+                scaleY = 1;
+            var transform = StageCamera.main.transform;
+            var orthographicSize = StageCamera.main.orthographicSize;
+            transform.localPosition = new Vector3(scaleX * orthographicSize * Screen.width / Screen.height, scaleY * orthographicSize);
         }
 
         public static void Purge()
