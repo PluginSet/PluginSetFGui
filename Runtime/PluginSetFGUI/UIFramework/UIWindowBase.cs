@@ -217,6 +217,17 @@ namespace PluginSet.FGUI
                 var cmp = UIObjectPool.Instance.Get(_url);
                 this.contentPane = (GComponent) cmp;
             }
+            
+            if (modal)
+            {
+                AddRelation(parent, RelationType.Center_Center);
+            }
+            else
+            {
+                var rootPanel = root;
+                SetSize(rootPanel.width, rootPanel.height);
+                AddRelation(rootPanel, RelationType.Size);
+            }
         }
 
         protected virtual void OnDispose()
