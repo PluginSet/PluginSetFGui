@@ -23,6 +23,17 @@ namespace PluginSet.FGUI
         private const string FILE_URL_PREFIX = "file://";
 #endif
 
+        private bool IsValid()
+        {
+            if (_disposed)
+                return false;
+
+            if (!displayObject.cachedTransform)
+                return false;
+            
+            return true;
+        }
+
         static GCustomLoader()
         {
             ImageCachePath = Path.Combine(Application.persistentDataPath, "caches", "images");
@@ -142,7 +153,7 @@ namespace PluginSet.FGUI
             if (request.result != UnityWebRequest.Result.Success)
             {
                 Logger.Warn("Fail download texture with url " + _requestUrl);
-                if (!_disposed)
+                if (IsValid())
                     onExternalLoadFailed();
                 return;
             }
@@ -152,13 +163,13 @@ namespace PluginSet.FGUI
             if (downloadTexture == null)
             {
                 Logger.Warn("Fail parse texture with url " + _requestUrl);
-                if (!_disposed)
+                if (IsValid())
                     onExternalLoadFailed();
                 return;
             }
                 
             
-            if (!_disposed)
+            if (IsValid())
                 onExternalLoadSuccess(new NTexture(downloadTexture));
             
             if (downloadTexture.isReadable)
