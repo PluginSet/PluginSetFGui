@@ -53,7 +53,7 @@ namespace PluginSet.FGUI.Editor
         /// </summary>
         public bool ignoreOrientation = false;
 
-        [OnSyncEditorSetting]
+        [OnSyncEditorSetting(-1)]
         public static void OnSyncEditorSetting(BuildProcessorContext context)
         {
             var buildParams = context.BuildChannels.Get<PluginSetFGUIConfig>();
