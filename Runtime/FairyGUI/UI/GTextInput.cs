@@ -96,7 +96,7 @@ namespace FairyGUI
         /// <summary>
         /// 
         /// </summary>
-        public string promptText
+        public virtual string promptText
         {
             get { return inputTextField.promptText; }
             set { inputTextField.promptText = value; }
