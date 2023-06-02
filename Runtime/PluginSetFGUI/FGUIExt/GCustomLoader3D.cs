@@ -9,7 +9,6 @@ namespace PluginSet.FGUI
     {
         private static readonly Logger Logger = LoggerManager.GetLogger("GCustomLoader3D");
         
-        private static readonly Vector3 DefaultScale = new Vector3(100, 100, 100);
         private static readonly Vector2 DefaultAnchor = new Vector2(0.5f, 0.5f);
 
         public Transform WrapTransform
@@ -60,7 +59,7 @@ namespace PluginSet.FGUI
             if (trans == null)
                 return;
 
-            trans.localScale = Vector3.Scale(wScale, DefaultScale);
+            trans.localScale = wScale;
         }
 
         public void SetWrapRotation(Vector3 wRotation)
@@ -113,7 +112,7 @@ namespace PluginSet.FGUI
                 hHeight = helper.Height;
             }
             
-            trans.localScale = DefaultScale;
+            trans.localScale = Vector3.one;
             trans.localPosition = new Vector3(anchor.x * hWidth, - anchor.y * hHeight, 0);
             
             if (helper != null)
