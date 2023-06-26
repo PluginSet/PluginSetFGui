@@ -11,6 +11,7 @@ namespace PluginSet.FGUI
         [Tooltip("显示锚点")]
         public Vector2 AnchorPoint = new Vector2(0.5f ,0.5f);
 
+        public abstract Vector3 DefaultScale { get; }
         public abstract Color Color { get; set; }
         public abstract void InitData(object data);
     }

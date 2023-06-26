@@ -11,6 +11,8 @@ namespace PluginSet.FGUI
         
         private static readonly Vector2 DefaultAnchor = new Vector2(0.5f, 0.5f);
 
+        private Vector3 _defaultScale = Vector3.one;
+
         public Transform WrapTransform
         {
             get
@@ -59,7 +61,7 @@ namespace PluginSet.FGUI
             if (trans == null)
                 return;
 
-            trans.localScale = wScale;
+            trans.localScale = Vector3.Scale(wScale, _defaultScale);
         }
 
         public void SetWrapRotation(Vector3 wRotation)
@@ -110,9 +112,10 @@ namespace PluginSet.FGUI
                 anchor = helper.AnchorPoint;
                 hWidth = helper.Width;
                 hHeight = helper.Height;
+                _defaultScale = helper.DefaultScale;
             }
-            
-            trans.localScale = Vector3.one;
+
+            trans.localScale = _defaultScale;
             trans.localPosition = new Vector3(anchor.x * hWidth, - anchor.y * hHeight, 0);
             
             if (helper != null)
