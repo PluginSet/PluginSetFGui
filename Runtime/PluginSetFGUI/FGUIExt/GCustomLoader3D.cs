@@ -120,6 +120,7 @@ namespace PluginSet.FGUI
             
             if (helper != null)
             {
+                helper.Wrapper = _content;
                 helper.InitData(data);
                 helper.Color = color;
             }

@@ -1,3 +1,4 @@
+using FairyGUI;
 using UnityEngine;
 
 namespace PluginSet.FGUI
@@ -10,6 +11,8 @@ namespace PluginSet.FGUI
         public float Height;
         [Tooltip("显示锚点")]
         public Vector2 AnchorPoint = new Vector2(0.5f ,0.5f);
+
+        public GoWrapper Wrapper { set; get; }
 
         public abstract Vector3 DefaultScale { get; }
         public abstract Color Color { get; set; }
