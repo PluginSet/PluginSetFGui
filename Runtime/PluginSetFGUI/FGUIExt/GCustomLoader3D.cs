@@ -24,6 +24,26 @@ namespace PluginSet.FGUI
                 return target.transform;
             }
         }
+
+        public WrapHelper WrapHelper
+        {
+            get
+            {
+                var target = _content.wrapTarget;
+                if (target == null)
+                    return null;
+
+                return target.GetComponent<WrapHelper>();
+            }
+        }
+
+        public void SetData(object value)
+        {
+            this.data = value;
+            var helper = this.WrapHelper;
+            if (helper != null)
+                helper.InitData(value);
+        }
         
         public GCustomLoader3D()
         {
