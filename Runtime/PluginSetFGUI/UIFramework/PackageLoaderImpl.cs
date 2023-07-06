@@ -149,6 +149,9 @@ namespace PluginSet.FGUI
 
         public virtual void ReleasePackage(UIPackage package, bool remove = false)
         {
+            if (remove) // fix error: RemovePackage will call NTexture Dispose, it's necessary before bundle unload
+                UIPackage.RemovePackage(package.id);
+            
             var pkgName = package.name;
             if (_loadedPackages.TryGetValue(pkgName, out var dict))
             {
@@ -158,9 +161,6 @@ namespace PluginSet.FGUI
 
                 dict.Clear();
             }
-            
-            if (remove)
-                UIPackage.RemovePackage(package.id);
         }
     }
 }
