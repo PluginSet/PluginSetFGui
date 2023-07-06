@@ -49,13 +49,7 @@ namespace PluginSet.FGUI
         protected override void OnDispose()
         {
             base.OnDispose();
-
-            var cmp = _loader.component;
-            if (cmp != null)
-            {
-                ((Container) _loader.displayObject).RemoveChild(cmp.container);
-                _loader.url = null;
-            }
+            _loader.url = null;
         }
 
         public void CloseWhenClickFrame(bool close)

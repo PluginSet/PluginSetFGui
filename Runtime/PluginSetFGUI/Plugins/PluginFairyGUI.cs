@@ -23,6 +23,9 @@ namespace PluginSet.FGUI
 
             var fguiObject = new GameObject("FairyGUI");
             fguiObject.SetActive(false);
+            
+            FairyGUIUtils.OnPackageLoadedHandle += UIObjectPool.OnPackageLoaded;
+            FairyGUIUtils.OnPackageUnloadHandle += UIObjectPool.OnPackageUnload;
 
             var uiConfig = fguiObject.AddComponent<UIConfig>();
             uiConfig.Items = setting.UIConfigItems;

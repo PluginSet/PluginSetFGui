@@ -6,7 +6,8 @@ namespace PluginSet.FGUI
 {
     public class UIObjectPool : GObjectPool
     {
-        private static Dictionary<string, UIObjectPool> _instances = new Dictionary<string, UIObjectPool>();
+        private static readonly Dictionary<string, UIObjectPool> Instances = new Dictionary<string, UIObjectPool>();
+        private static readonly Dictionary<string, List<string>> PackagePools = new Dictionary<string, List<string>>();
         private static UIObjectPool _instance;
 
         public static UIObjectPool Instance
@@ -24,37 +25,34 @@ namespace PluginSet.FGUI
 
         public static UIObjectPool CreateInstance(string rootName)
         {
-            if (_instances.TryGetValue(rootName, out var inst))
+            if (Instances.TryGetValue(rootName, out var inst))
                 return inst;
             
             var gameObject = new GameObject(rootName);
             Object.DontDestroyOnLoad(gameObject);
             var newInst = new UIObjectPool(gameObject);
-            _instances.Add(rootName, newInst);
+            Instances.Add(rootName, newInst);
             return newInst;
         }
 
         public static void ClearAll()
         {
-            foreach (var inst in _instances.Values)
+            foreach (var inst in Instances.Values)
             {
                 inst.Clean();
             }
+            PackagePools.Clear();
         }
 
         public event InitCallbackDelegate OnObjectInit;
 
         private GameObject _gameObject;
-        
-        private Dictionary<string, List<string>> packagePools = new Dictionary<string, List<string>>();
 
         private UIObjectPool(GameObject gameObject)
             :base(gameObject.transform)
         {
             _gameObject = gameObject;
             initCallback = OnObjectInit;
-            FairyGUIUtils.OnPackageLoadedHandle += OnPackageLoaded;
-            FairyGUIUtils.OnPackageUnloadHandle += OnPackageUnload;
         }
 
         public GObject Get(string url)
@@ -72,7 +70,7 @@ namespace PluginSet.FGUI
             {
                 var packageName = item.owner.name;
                 var url = obj.resourceURL;
-                if (packagePools.TryGetValue(packageName, out var list))
+                if (PackagePools.TryGetValue(packageName, out var list))
                 {
                     if (!list.Contains(url))
                         list.Add(url);
@@ -90,7 +88,6 @@ namespace PluginSet.FGUI
 
         public void Clean()
         {
-            packagePools.Clear();
             Clear();
         }
 
@@ -108,30 +105,31 @@ namespace PluginSet.FGUI
         public void Destroy()
         {
             Clean();
-            FairyGUIUtils.OnPackageLoadedHandle -= OnPackageLoaded;
-            FairyGUIUtils.OnPackageUnloadHandle -= OnPackageUnload;
             Object.Destroy(_gameObject);
             _gameObject = null;
         }
 
-        private void OnPackageLoaded(string packageName)
+        internal static void OnPackageLoaded(string packageName)
         {
-            if (packagePools.ContainsKey(packageName))
+            if (PackagePools.ContainsKey(packageName))
                 return;
             
-            packagePools.Add(packageName, new List<string>());
+            PackagePools.Add(packageName, new List<string>());
         }
 
-        private void OnPackageUnload(string packageName)
+        internal static void OnPackageUnload(string packageName)
         {
-            if (packagePools.TryGetValue(packageName, out var list))
+            if (PackagePools.TryGetValue(packageName, out var list))
             {
                 foreach (var url in list)
                 {
-                    ClearByUrl(url);
+                    foreach (var pool in Instances.Values)
+                    {
+                        pool.ClearByUrl(url);
+                    }
                 }
 
-                packagePools.Remove(packageName);
+                PackagePools.Remove(packageName);
             }
         }
     }
