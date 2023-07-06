@@ -53,6 +53,10 @@ namespace PluginSet.FGUI
             handle.completed += Completed;
         }
 
+        public void Cancel()
+        {
+        }
+
         private void Completed(AsyncOperationHandle handle)
         {
             handle.completed -= Completed;

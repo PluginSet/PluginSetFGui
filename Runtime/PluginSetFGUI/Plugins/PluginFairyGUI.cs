@@ -63,10 +63,10 @@ namespace PluginSet.FGUI
             UIManager.CloseAll();
             UIManager.Purge();
             UIWindow.ClearInstances();
+            TweenManager.KillAllTweens();
             UIObjectPool.ClearAll();
             UIObjectFactory.Clear();
             UnionPackage.ReleaseAll(true);
-            TweenManager.KillAllTweens();
 
             if (_packagesInStartScene == null || _packagesInStartScene.Length <= 0)
             {
