@@ -1326,10 +1326,10 @@ namespace FairyGUI
                         ((IAnimationGear)item.target).playing = value.playing;
                         ((IAnimationGear)item.target).timeScale = _timeScale;
                         ((IAnimationGear)item.target).ignoreEngineTimeScale = _ignoreEngineTimeScale;
-                        if (value.animationName != null)
-                            ((GLoader3D)item.target).animationName = value.animationName;
-                        if (value.skinName != null)
-                            ((GLoader3D)item.target).skinName = value.skinName;
+                        if (value.animationName != null && item.target is GLoader3D loader3D) // fix: GMoveClip的Animation动画中animationName会有默认值play 健壮性
+                            loader3D.animationName = value.animationName;
+                        if (value.skinName != null && item.target is GLoader3D gLoader3D) // fix: 健壮性
+                            gLoader3D.skinName = value.skinName;
                     }
                     break;
 
