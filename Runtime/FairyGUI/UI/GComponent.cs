@@ -96,6 +96,7 @@ namespace FairyGUI
 #if FAIRYGUI_TOLUA
             if (_peerTable != null)
             {
+                CallLua("dtor");
                 _peerTable.Dispose();
                 _peerTable = null;
             }
