@@ -224,7 +224,8 @@ namespace FairyGUI
 
             string str = buffer.ReadS();
             if (str != null)
-                inputTextField.promptText = str;
+                promptText = str;
+                // inputTextField.promptText = str;
 
             str = buffer.ReadS();
             if (str != null)
