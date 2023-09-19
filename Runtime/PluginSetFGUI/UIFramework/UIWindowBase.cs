@@ -160,6 +160,11 @@ namespace PluginSet.FGUI
 
         protected override void DoHideAnimation()
         {
+            if (!_inited)
+            {
+                this.root.HideWindowImmediately(this, true);
+                return;
+            }
             if (!_hided)
             {
                 _hided = true;
