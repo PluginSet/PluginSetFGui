@@ -190,5 +190,16 @@ namespace PluginSet.FGUI
         {
             return Path.Combine(ImageCachePath, _url.GetHashCode() + ".png");
         }
+
+        public override void Dispose()
+        {
+            if (_boardFrame != null)
+            {
+                ((Container) displayObject).RemoveChild(_boardFrame.displayObject, false);
+                _boardFrame.Dispose();
+            }
+            _boardFrame = null;
+            base.Dispose();
+        }
     }
 }

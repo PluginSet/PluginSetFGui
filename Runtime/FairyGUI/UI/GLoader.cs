@@ -75,7 +75,11 @@ namespace FairyGUI
             if (_errorSign != null)
                 _errorSign.Dispose();
             if (_content2 != null)
+            {
+                _content2.displayObject.RemoveFromParent(); // 需要触发一次OnRemovedFromStage
                 _content2.Dispose();
+                _content2 = null;
+            }
             _content.Dispose();
 
             base.Dispose();
@@ -655,6 +659,7 @@ namespace FairyGUI
 
             if (_content2 != null)
             {
+                _content2.displayObject.RemoveFromParent(); // 需要触发一次OnRemovedFromStage
                 _content2.Dispose();
                 _content2 = null;
             }

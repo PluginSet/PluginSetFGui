@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FairyGUI;
+using UnityEngine;
 
 namespace PluginSet.FGUI
 {
@@ -371,9 +372,16 @@ namespace PluginSet.FGUI
                 ReleasePackage(_branchPackage, true);
                 _branchPackage = null;
             }
-            
-            ReleasePackage(_mainPackage, remove);
-            _mainPackage = null;
+
+            if (_mainPackage != null)
+            {
+                ReleasePackage(_mainPackage, remove);
+                _mainPackage = null;
+            }
+            else
+            {
+                Debug.LogError($"ReleasePackages: main package is null in {_name}");
+            }
         }
         
         private void AddVirtual(PackageItem item)
