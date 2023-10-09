@@ -195,7 +195,7 @@ namespace PluginSet.FGUI
         {
             if (_boardFrame != null)
             {
-                ((Container) displayObject).RemoveChild(_boardFrame.displayObject, false);
+                _boardFrame.displayObject.RemoveFromParent();
                 _boardFrame.Dispose();
             }
             _boardFrame = null;
