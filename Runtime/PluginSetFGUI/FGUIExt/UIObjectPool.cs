@@ -35,6 +35,18 @@ namespace PluginSet.FGUI
             return newInst;
         }
 
+        private static void DestroyInstance(GameObject gameObject)
+        {
+            if (gameObject == null)
+                return;
+            
+            var rootName = gameObject.name;
+            if (Instances.ContainsKey(rootName))
+                Instances.Remove(rootName);
+            
+            Object.Destroy(gameObject);
+        }
+        
         public static void ClearAll()
         {
             foreach (var inst in Instances.Values)
@@ -105,7 +117,7 @@ namespace PluginSet.FGUI
         public void Destroy()
         {
             Clean();
-            Object.Destroy(_gameObject);
+            DestroyInstance(_gameObject);
             _gameObject = null;
         }
 
