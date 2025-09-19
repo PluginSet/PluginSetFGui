@@ -1698,7 +1698,15 @@ namespace FairyGUI
         {
             if (_peerTable != null)
             {
-                LuaFunction ctor = _peerTable.GetLuaFunction(funcName);
+                LuaFunction ctor = null;
+                try
+                {
+                    ctor = _peerTable.GetLuaFunction(funcName);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Cannot find lua function {funcName} in GComponent {name} : {e}");
+                }
                 if (ctor != null)
                 {
                     try
