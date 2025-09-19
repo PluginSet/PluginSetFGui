@@ -11,7 +11,7 @@ namespace PluginSet.FGUI
     {
         public override string Name => "FairyGUI";
 
-        public int StartOrder => PluginsStartOrder.ResourceManager + 1;
+        public int StartOrder => PluginsStartOrder.VirtualMachine + 1;
         
         public bool IsRunning { get; private set; }
 
@@ -42,6 +42,10 @@ namespace PluginSet.FGUI
             
             fguiObject.SetActive(true);
             
+            UIObjectFactory.SetListExtension(typeof(GCustomList));
+            UIObjectFactory.SetLoaderExtension(typeof(GCustomLoader));
+            UIObjectFactory.SetLoader3DExtension(typeof(GCustomLoader3D));
+            
             UIConfig.bringWindowToFrontOnClick = setting.bringWindowToFrontOnClick;
 
             _packagesInStartScene = setting.packagesInStartScene;
@@ -49,10 +53,6 @@ namespace PluginSet.FGUI
         
         public IEnumerator StartPlugin()
         {
-            UIObjectFactory.SetListExtension(typeof(GCustomList));
-            UIObjectFactory.SetLoaderExtension(typeof(GCustomLoader));
-            UIObjectFactory.SetLoader3DExtension(typeof(GCustomLoader3D));
-
             IsRunning = true;
             yield break;
         }

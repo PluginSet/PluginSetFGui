@@ -164,9 +164,9 @@ namespace FairyGUI
         public static void Clear()
         {
             packageItemExtensions.Clear();
-            loaderCreator = null;
-            listCreator = null;
-            loader3DCreator = null;
+            // loaderCreator = null;
+            // listCreator = null;
+            // loader3DCreator = null;
             textFieldCreator = null;
             textInputCreator = null;
             richTextFieldCreator = null;
