@@ -388,7 +388,10 @@ namespace FairyGUI
             if (!_packageInstById.TryGetValue(packageIdOrName, out pkg))
             {
                 if (!_packageInstByName.TryGetValue(packageIdOrName, out pkg))
-                    throw new Exception("FairyGUI: '" + packageIdOrName + "' is not a valid package id or name.");
+                {
+                    Debug.LogError("FairyGUI: '" + packageIdOrName + "' is not a valid package id or name.");
+                    return;
+                }
             }
             pkg.Dispose();
             _packageInstById.Remove(pkg.id);
