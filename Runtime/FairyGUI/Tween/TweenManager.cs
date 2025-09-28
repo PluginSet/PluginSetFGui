@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace FairyGUI
 {
-    internal static class TweenManager
+    public static class TweenManager
     {
         static GTweener[] _activeTweens = new GTweener[30];
         static List<GTweener> _tweenerPool = new List<GTweener>(30);
@@ -54,7 +54,7 @@ namespace FairyGUI
             return false;
         }
 
-        internal static void KillAllTweens(bool completed = false)
+        public static void KillAllTweens(bool completed = false)
         {
             int cnt = _totalActiveTweens;
             for (int i = 0; i < cnt; i++)

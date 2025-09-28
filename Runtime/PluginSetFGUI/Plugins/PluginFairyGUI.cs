@@ -11,7 +11,7 @@ namespace PluginSet.FGUI
     {
         public override string Name => "FairyGUI";
 
-        public int StartOrder => PluginsStartOrder.VirtualMachine + 1;
+        public int StartOrder => PluginsStartOrder.ResourceManager + 1;
         
         public bool IsRunning { get; private set; }
 
