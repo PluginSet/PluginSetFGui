@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using FairyGUI.Utils;
 
@@ -350,13 +351,37 @@ namespace FairyGUI
                 if (_contentItem.type == PackageItemType.Spine)
                 {
 #if FAIRYGUI_SPINE
-                    LoadSpine();
+#if DEBUG
+                    try
+                    {
+#endif
+                        LoadSpine();
+#if DEBUG
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"Failed to load Spine in {this.resourceURL} with url {this._url}", this.displayObject.gameObject);
+                        throw;
+                    }
+#endif
 #endif
                 }
                 else if (_contentItem.type == PackageItemType.DragoneBones)
                 {
 #if FAIRYGUI_DRAGONBONES
-                    LoadDragonBones();
+#if DEBUG
+                    try
+                    {
+#endif
+                        LoadDragonBones();
+#if DEBUG
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"Failed to load DragonBones in {this.resourceURL} with url {this._url}", this.displayObject.gameObject);
+                        throw;
+                    }
+#endif
 #endif
                 }
             }
