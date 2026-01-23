@@ -55,6 +55,7 @@ namespace PluginSet.FGUI
 
         public void Cancel()
         {
+            loadedCallback = null;
         }
 
         private void Completed(AsyncOperationHandle handle)

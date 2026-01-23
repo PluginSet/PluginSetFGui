@@ -63,6 +63,7 @@ namespace PluginSet.FGUI
 
             if (isAppQuit) return;
             
+            UIManager.PrePurge();
             UIManager.CloseAll();
             UIManager.Purge();
             UIWindow.ClearInstances();

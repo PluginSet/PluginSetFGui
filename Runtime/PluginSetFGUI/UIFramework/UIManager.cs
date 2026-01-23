@@ -27,11 +27,14 @@ namespace PluginSet.FGUI
         public static readonly int ToastLayerOrder = 2000;
         public static readonly int LoadingLayerOrder = 3000;
 
+        public static bool IsValid => _inited &&  !_purging;
+
         public static UILayer LayerView;
         public static UILayer LayerModal;
         public static UILayer LayerToast;
         public static UILayer LayerLoading;
 
+        private static bool _purging = false;
         private static bool _inited = false;
         private static string _defaultToastUrl;
 
@@ -44,6 +47,7 @@ namespace PluginSet.FGUI
             LayerModal = AddLayer("LayerModal", ModalLayerOrder);
             LayerToast = AddLayer("LayerToast", ToastLayerOrder);
             LayerLoading = AddLayer("LayerLoading", LoadingLayerOrder);
+            _purging = false;
         }
         
         public static void InitWithSafeArea(float x, float y, float w, float h)
@@ -81,6 +85,11 @@ namespace PluginSet.FGUI
             var transform = StageCamera.main.transform;
             var orthographicSize = StageCamera.main.orthographicSize;
             transform.localPosition = new Vector3(scaleX * orthographicSize * Screen.width / Screen.height, scaleY * orthographicSize);
+        }
+
+        public static void PrePurge()
+        {
+            _purging = true;
         }
 
         public static void Purge()
@@ -149,6 +158,11 @@ namespace PluginSet.FGUI
 
         public static UIWindow ShowOn(UILayer layer, string name, params object[] args)
         {
+            if (!_inited || _purging)
+            {
+                return null;
+            }
+            
             if (!_windowInfos.TryGetValue(name, out var info))
             {
                 Logger.Error("Cannot find window info with name {0}", name);
@@ -208,6 +222,9 @@ namespace PluginSet.FGUI
         
         public static UIToast ShowToast(string text, string icon, string url, int tag, string rule, int sortingOrder = 0)
         {
+            if (!_inited || _purging)
+                return null;
+            
             if (string.IsNullOrEmpty(url))
                 url = _defaultToastUrl;
 
@@ -229,6 +246,8 @@ namespace PluginSet.FGUI
 
         public static void HideAllToast()
         {
+            if (!_inited || _purging)
+                return;
             LayerToast.RemoveChildren();
         }
 
@@ -254,11 +273,15 @@ namespace PluginSet.FGUI
         
         public static void ShowModalWait()
         {
+            if (!_inited || _purging)
+                return;
             LayerLoading.ShowModalWait();
         }
 
         public static void HideModalWait()
         {
+            if (!_inited || _purging)
+                return;
             LayerLoading.CloseModalWait();
         }
         
