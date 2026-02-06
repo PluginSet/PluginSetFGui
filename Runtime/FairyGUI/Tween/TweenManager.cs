@@ -3,7 +3,9 @@ using UnityEngine;
 
 namespace FairyGUI
 {
+#region fix:允许外部调用
     public static class TweenManager
+#endregion
     {
         static GTweener[] _activeTweens = new GTweener[30];
         static List<GTweener> _tweenerPool = new List<GTweener>(30);
@@ -54,6 +56,7 @@ namespace FairyGUI
             return false;
         }
 
+#region fix:允许外部调用
         public static void KillAllTweens(bool completed = false)
         {
             int cnt = _totalActiveTweens;
@@ -68,7 +71,7 @@ namespace FairyGUI
             }
             
         }
-
+#endregion
 
         internal static bool KillTweens(object target, TweenPropType propType, bool completed)
         {
@@ -91,7 +94,7 @@ namespace FairyGUI
 
             return flag;
         }
-        
+
         internal static GTweener GetTween(object target, TweenPropType propType)
         {
             if (target == null)
@@ -184,6 +187,17 @@ namespace FairyGUI
                 gameObject.AddComponent<TweenEngine>();
             }
         }
+
+#if UNITY_2019_3_OR_NEWER
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void InitializeOnLoad()
+        {
+            _tweenerPool.Clear();
+            _activeTweens = new GTweener[30];
+            _totalActiveTweens = 0;
+            _inited = false;
+        }
+#endif
 
         class TweenEngine : MonoBehaviour
         {

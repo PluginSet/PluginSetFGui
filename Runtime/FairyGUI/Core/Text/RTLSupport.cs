@@ -51,6 +51,7 @@ namespace FairyGUI
         private static StringBuilder sbFinal = new StringBuilder();
         private static StringBuilder sbReverse = new StringBuilder();
 
+#region fix:维语适配
         private const char FRIBIDI_CHAR_FILL = (char)0xFEFF;
 
         private static readonly Dictionary<char, Dictionary<char, char>> MANDATORY_LIGA_TABLE = new Dictionary<char, Dictionary<char, char>>
@@ -86,6 +87,7 @@ namespace FairyGUI
                 }
             }
         }
+#endregion
 
         public static bool IsArabicLetter(char ch)
         {
@@ -212,7 +214,9 @@ namespace FairyGUI
             int num = input;
             if ((num != 0x622) && (num != 0x623) && (num != 0x627) && (num != 0x62f) && (num != 0x625) &&
                 (num != 0x630) && (num != 0x631) && (num != 0x632) && (num != 0x698) && (num != 0x648) &&
+#region fix:维语适配
                 (num != 0x6c6) && (num != 0x6c7) && (num != 0x6c8) && (num != 0x6d5) && (num != 0x6cb) &&
+#endregion
                 !_CheckSoundmark(input))
             {
                 return false;
@@ -341,7 +345,9 @@ namespace FairyGUI
                     sbFinal[i] = mapping[sbFinal[i]][(int)CharState.middle];
                 }
                 
+#region fix:维语适配
                 ReplaceMandatoryLigaLetters(i, sbFinal);
+#endregion
             }
             return sbFinal.ToString();
         }
@@ -641,6 +647,7 @@ namespace FairyGUI
             mapping.Add(0x6BE, new char[4] { (char)0xFEE9, (char)0xFEEA, (char)0xFEEB, (char)0xFEEC });
             mapping.Add(0x6CC, new char[4] { (char)0xFBFC, (char)0xFBFD, (char)0xFBFE, (char)0xFBFF });
             
+#region fix:维语适配
             mapping.Add(0x6D5, new char[4] { (char)0xFEE9, (char)0xFEEA, (char)0xFEE9, (char)0xFEEA });   // Uy AE
             mapping.Add(0x6AD, new char[4] { (char)0xFBD3, (char)0xFBD4, (char)0xFBD5, (char)0xFBD6 });   // Uy NG
             mapping.Add(0x6C6, new char[4] { (char)0xFBD9, (char)0xFBDA, (char)0xFBD9, (char)0xFBDA });   // Uy OE
@@ -657,6 +664,7 @@ namespace FairyGUI
 //            mapping.Add(0x64A, new char[4] { (char)0xFEF1, (char)0xFEF3, (char)0xFEF3, (char)0xFEF3 });    // Ya
 //            mapping.Remove(0x626);
 //            mapping.Add(0x626, new char[4] { (char)0xFEFB, (char)0xFEFB, (char)0xFE8B, (char)0xFE8C });    // HamzaNabera
+#endregion
             
         }
 

@@ -535,34 +535,39 @@ namespace DragonBones
                 return _dragonBonesInstance.eventManager;
             }
         }
+
         /// <summary>
         /// Parse the UnityDragonBonesData to a DragonBonesData instance and cache it to the factory.
         /// </summary>
         /// <param name="data">The UnityDragonBonesData data</param>
+        /// <param name="name"></param>
         /// <param name="isUGUI">is UGUI</param>
         /// <param name="armatureScale">The armature scale</param>
         /// <param name="texScale">The texture scale</param>
         /// <returns></returns>
         /// <version>DragonBones 4.5</version>
         /// <language>en_US</language>
-
         /// <summary>
         /// 将UnityDragonBonesData数据解析为 DragonBonesData 实例，并缓存到工厂中。
         /// </summary>
         /// <param name="data">龙骨数据</param>
+        /// <param name="name"></param>
         /// <param name="isUGUI">是否是UGUI</param>
         /// <param name="armatureScale">骨架缩放值</param>
         /// <param name="texScale">贴图缩放值</param>
         /// <returns></returns>
         /// <version>DragonBones 4.5</version>
         /// <language>zh_CN</language>
-        public DragonBonesData LoadData(UnityDragonBonesData data, bool isUGUI = false, float armatureScale = 0.01f, float texScale = 1.0f)
+        public DragonBonesData LoadData(UnityDragonBonesData data, string name = "", bool isUGUI = false, float armatureScale = 0.01f, float texScale = 1.0f)
         {
             DragonBonesData dragonBonesData = null;
 
+            if (string.IsNullOrEmpty(name))
+                name = data.dataName;
+
             if (data.dragonBonesJSON != null)
             {
-                dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, data.dataName, armatureScale);
+                dragonBonesData = LoadDragonBonesData(data.dragonBonesJSON, name, armatureScale);
 
                 if (!string.IsNullOrEmpty(data.dataName) && dragonBonesData != null && data.textureAtlas != null)
                 {
@@ -592,7 +597,7 @@ namespace DragonBones
                     }
 #endif
 
-                    var textureAtlasDatas = this.GetTextureAtlasData(data.dataName);
+                    var textureAtlasDatas = this.GetTextureAtlasData(name);
                     if (textureAtlasDatas != null)
                     {
                         for (int i = 0, l = textureAtlasDatas.Count; i < l; ++i)
@@ -627,7 +632,7 @@ namespace DragonBones
                     {
                         for (int i = 0; i < data.textureAtlas.Length; ++i)
                         {
-                            LoadTextureAtlasData(data.textureAtlas[i], data.dataName, texScale, isUGUI);
+                            LoadTextureAtlasData(data.textureAtlas[i], name, texScale, isUGUI);
                         }
                     }
 

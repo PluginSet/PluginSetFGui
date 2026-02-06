@@ -855,6 +855,7 @@ namespace FairyGUI
                             pi.file = assetPath + pi.file;
                             pi.skeletonAnchor.x = buffer.ReadFloat();
                             pi.skeletonAnchor.y = buffer.ReadFloat();
+                            pi.skeletonLoaders = new HashSet<GLoader3D>();
                             break;
                         }
                 }
@@ -1333,6 +1334,7 @@ namespace FairyGUI
                         Debug.LogWarning("FairyGUI: settings for '" + item.file + "' is wrong! Correct values are: (Generate Mip Maps=unchecked)");
                 }
 
+#if FAIRYGUI_USE_ALPHA_TEXTURE
                 if (tex != null)
                 {
                     fileName = fileName + "!a";
@@ -1344,7 +1346,7 @@ namespace FairyGUI
                     else
                         alphaTex = (Texture2D)_loadFunc(fileName, ext, itemBranch, typeof(Texture2D), out dm);
                 }
-
+#endif
                 var isEmptyTexture = tex == null;
                 if (isEmptyTexture)
                 {
@@ -1639,16 +1641,22 @@ namespace FairyGUI
 
         void LoadSpine(PackageItem item)
         {
-#if FAIRYGUI_SPINE
             string ext = Path.GetExtension(item.file);
             string fileName = item.file.Substring(0, item.file.Length - ext.Length);
             int index = fileName.LastIndexOf(".skel");
             if (index > 0)
                 fileName = fileName.Substring(0, index);
 
-            Spine.Unity.SkeletonDataAsset asset;
-            if (_resBundle != null)
-                asset = _resBundle.LoadAsset<Spine.Unity.SkeletonDataAsset>(fileName + "_SkeletonData");
+#if FAIRYGUI_SPINE
+            if (_loadAsyncFunc != null)
+            {
+                _loadAsyncFunc(fileName + "_SkeletonData", ".asset", item.branch, typeof(Spine.Unity.SkeletonDataAsset), item);
+            }
+            else
+            {
+                Spine.Unity.SkeletonDataAsset asset;
+                if (_resBundle != null)
+                    asset = _resBundle.LoadAsset<Spine.Unity.SkeletonDataAsset>(fileName);
             else
             {
                 DestroyMethod dm;
@@ -1657,6 +1665,7 @@ namespace FairyGUI
             if (asset == null)
                 Debug.LogWarning("FairyGUI: Failed to load " + fileName);
             item.skeletonAsset = asset;
+            }
 #else
             Debug.LogWarning("To enable Spine support, add script define symbol: FAIRYGUI_SPINE");
 #endif
@@ -1684,17 +1693,6 @@ namespace FairyGUI
             }
             if (asset != null)
             {
-                var factory = DragonBones.UnityFactory.factory;
-                asset.dataName = item.name;
-                factory.RemoveDragonBonesData(asset.dataName, false);
-                factory.RemoveTextureAtlasData(asset.dataName, false);
-//                if (item.skeletonAsset != null && item.skeletonAsset is DragonBones.DragonBonesData o)
-//                {
-//                    factory.RemoveTextureAtlasData(asset.dataName);
-//                    factory.RemoveDragonBonesData(o.name, false);
-//                    item.skeletonAsset = null;
-//                }
-            
                 foreach (var atlas in asset.textureAtlas)
                 {
                     if (atlas.material == null)
@@ -1703,7 +1701,11 @@ namespace FairyGUI
                         atlas.material.mainTexture = atlas.texture;
                     }
                 }
-                item.skeletonAsset = factory.LoadData(asset);
+
+#region fix: 修改龙骨资源唯一标识
+                string cacheName = $"{item.owner.id}_{item.id}";
+#endregion
+                item.skeletonAsset = DragonBones.UnityFactory.factory.LoadData(asset, cacheName);
             }
             else
                 Debug.LogWarning("FairyGUI: Failed to load " + fileName);
@@ -1750,5 +1752,14 @@ namespace FairyGUI
         {
             _itemsById.Remove(item.id);
         }
+        
+#if UNITY_2019_3_OR_NEWER
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void InitializeOnLoad()
+        {
+            RemoveAllPackages();
+            UIPackage.branch = null;
+        }
+#endif
     }
 }

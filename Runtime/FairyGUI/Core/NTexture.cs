@@ -51,11 +51,13 @@ namespace FairyGUI
         /// 
         /// </summary>
         public DestroyMethod destroyMethod;
-        
+
+#region fix:标记为空贴图
         /// <summary>
         /// 贴图为空
         /// </summary>
         public bool IsEmptyTexture { get; set; }
+#endregion
 
         /// <summary>
         /// This event will trigger when texture reloaded and size changed.
@@ -99,7 +101,9 @@ namespace FairyGUI
                 if (_empty == null)
                 {
                     _empty = new NTexture(CreateEmptyTexture());
+#region fix:标记为空贴图
                     _empty.IsEmptyTexture = true;
+#endregion
                 }
 
                 return _empty;
@@ -118,6 +122,15 @@ namespace FairyGUI
                 tmp.Dispose();
             }
         }
+
+#if UNITY_2019_3_OR_NEWER
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void InitializeOnLoad()
+        {
+            DisposeEmpty();
+            CustomDestroyMethod = null;
+        }
+#endif
 
         /// <summary>
         /// 
@@ -273,12 +286,37 @@ namespace FairyGUI
         /// <returns></returns>
         public Rect GetDrawRect(Rect drawRect)
         {
+            return GetDrawRect(drawRect, FlipType.None);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="drawRect"></param>
+        /// <param name="flip"></param>
+        /// <returns></returns>
+        public Rect GetDrawRect(Rect drawRect, FlipType flip)
+        {
             if (_originalSize.x == _region.width && _originalSize.y == _region.height)
                 return drawRect;
 
             float sx = drawRect.width / _originalSize.x;
             float sy = drawRect.height / _originalSize.y;
-            return new Rect(_offset.x * sx, _offset.y * sy, _region.width * sx, _region.height * sy);
+            Rect rect = new Rect(_offset.x * sx, _offset.y * sy, _region.width * sx, _region.height * sy);
+
+            if (flip != FlipType.None)
+            {
+                if (flip == FlipType.Horizontal || flip == FlipType.Both)
+                {
+                    rect.x = drawRect.width - rect.xMax;
+                }
+                if (flip == FlipType.Vertical || flip == FlipType.Both)
+                {
+                    rect.y = drawRect.height - rect.yMax;
+                }
+            }
+
+            return rect;
         }
 
         /// <summary>

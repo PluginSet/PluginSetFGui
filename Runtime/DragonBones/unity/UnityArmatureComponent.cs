@@ -676,7 +676,7 @@ namespace DragonBones
 #endif
             if (unityData != null && unityData.dragonBonesJSON != null && unityData.textureAtlas != null)
             {
-                var dragonBonesData = UnityFactory.factory.LoadData(unityData, isUGUI);
+                var dragonBonesData = UnityFactory.factory.LoadData(unityData, "", isUGUI);
                 if (dragonBonesData != null && !string.IsNullOrEmpty(armatureName))
                 {
                     UnityFactory.factory.BuildArmatureComponent(armatureName, unityData.dataName, null, null, gameObject, isUGUI);

@@ -23,6 +23,7 @@ namespace FairyGUI
         bool _autoSize;
         FillType _fill;
         bool _shrinkOnly;
+        bool _useResize;
         bool _updatingLayout;
         Action<NTexture> _reloadDelegate;
 
@@ -152,6 +153,22 @@ namespace FairyGUI
                 if (_fill != value)
                 {
                     _fill = value;
+                    UpdateLayout();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool useResize
+        {
+            get { return _useResize; }
+            set
+            {
+                if (_useResize != value)
+                {
+                    _useResize = value;
                     UpdateLayout();
                 }
             }
@@ -458,7 +475,8 @@ namespace FairyGUI
         virtual protected void LoadExternal()
         {
 #if FAIRYGUI_PUERTS
-            if (__loadExternal != null) {
+            if (__loadExternal != null)
+            {
                 __loadExternal();
                 return;
             }
@@ -473,7 +491,8 @@ namespace FairyGUI
         virtual protected void FreeExternal(NTexture texture)
         {
 #if FAIRYGUI_PUERTS
-            if (__freeExternal != null) {
+            if (__freeExternal != null)
+            {
                 __freeExternal(texture);
                 return;
             }
@@ -562,6 +581,8 @@ namespace FairyGUI
                     {
                         _content2.SetXY(0, 0);
                         _content2.SetScale(1, 1);
+                        if (_useResize)
+                            _content2.SetSize(contentWidth, contentHeight, true);
                     }
                     else
                     {
@@ -616,7 +637,15 @@ namespace FairyGUI
             }
 
             if (_content2 != null)
-                _content2.SetScale(sx, sy);
+            {
+                if (_useResize)
+                {
+                    _content2.SetScale(1, 1);
+                    _content2.SetSize(contentWidth, contentHeight, true);
+                }
+                else
+                    _content2.SetScale(sx, sy);
+            }
             else
                 _content.size = new Vector2(contentWidth, contentHeight);
 
@@ -699,6 +728,8 @@ namespace FairyGUI
                 _content.fillClockwise = buffer.ReadBool();
                 _content.fillAmount = buffer.ReadFloat();
             }
+            if (buffer.version >= 7)
+                _useResize = buffer.ReadBool();
 
             if (!string.IsNullOrEmpty(_url))
                 LoadContent();
