@@ -13,6 +13,8 @@ namespace FairyGUI
         /// </summary>
         public NAudioClip sound;
 
+        public string soundRes;
+
         /// <summary>
         /// Volume of the click sound. (0-1)
         /// </summary>
@@ -61,6 +63,7 @@ namespace FairyGUI
         public GButton()
         {
             sound = UIConfig.buttonSound;
+            soundRes = UIConfig.buttonSoundRes;
             soundVolumeScale = UIConfig.buttonSoundVolumeScale;
             changeStateOnClick = true;
             _downEffectValue = 0.8f;
@@ -471,6 +474,7 @@ namespace FairyGUI
             string str = buffer.ReadS();
             if (str != null)
                 sound = UIPackage.GetItemAssetByURL(str) as NAudioClip;
+            soundRes = str;
             soundVolumeScale = buffer.ReadFloat();
             _downEffect = buffer.ReadByte();
             _downEffectValue = buffer.ReadFloat();
@@ -531,6 +535,7 @@ namespace FairyGUI
             _relatedPageId = buffer.ReadS();
 
             str = buffer.ReadS();
+            soundRes = str;
             if (str != null)
                 sound = UIPackage.GetItemAssetByURL(str) as NAudioClip;
             if (buffer.ReadBool())
@@ -630,6 +635,8 @@ namespace FairyGUI
         {
             if (sound != null && sound.nativeClip != null)
                 Stage.inst.PlayOneShotSound(sound.nativeClip, soundVolumeScale);
+            else if (!string.IsNullOrEmpty(soundRes) && UIConfig.soundPlayer != null)
+                UIConfig.soundPlayer(soundRes, soundVolumeScale);
 
             if (_mode == ButtonMode.Check)
             {

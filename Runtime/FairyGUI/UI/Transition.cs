@@ -1381,6 +1381,8 @@ namespace FairyGUI
 
                         if (value.audioClip != null && value.audioClip.nativeClip != null)
                             Stage.inst.PlayOneShotSound(value.audioClip.nativeClip, value.volume);
+                        else if (UIConfig.soundPlayer != null)
+                            UIConfig.soundPlayer(value.sound, value.volume);
                     }
                     break;
 

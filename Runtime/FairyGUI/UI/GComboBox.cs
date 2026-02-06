@@ -25,6 +25,8 @@ namespace FairyGUI
         /// </summary>
         public NAudioClip sound;
 
+        public string soundRes;
+
         /// <summary>
         /// Volume of the click sound. (0-1)
         /// </summary>
@@ -516,6 +518,7 @@ namespace FairyGUI
             if (buffer.version >= 5)
             {
                 str = buffer.ReadS();
+                soundRes = str;
                 if (str != null)
                     sound = UIPackage.GetItemAssetByURL(str) as NAudioClip;
                 soundVolumeScale = buffer.ReadFloat();
@@ -624,6 +627,8 @@ namespace FairyGUI
         {
             if (sound != null && sound.nativeClip != null)
                 Stage.inst.PlayOneShotSound(sound.nativeClip, soundVolumeScale);
+            else if (!string.IsNullOrEmpty(soundRes) && UIConfig.soundPlayer != null)
+                UIConfig.soundPlayer(soundRes, soundVolumeScale);
         }
     }
 }

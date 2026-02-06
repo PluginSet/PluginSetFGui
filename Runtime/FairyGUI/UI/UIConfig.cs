@@ -40,6 +40,8 @@ namespace FairyGUI
         /// </summary>
         public static NAudioClip buttonSound;
 
+        public static string buttonSoundRes;
+
         /// <summary>
         /// Default button click sound volume.
         /// </summary>
@@ -454,9 +456,13 @@ namespace FairyGUI
 
         public delegate NAudioClip SoundLoader(string url);
 
+        public delegate void SoundPlayer(string url, float volume = 1f);
+
         /// <summary>
         /// 
         /// </summary>
         public static SoundLoader soundLoader = null;
+
+        public static SoundPlayer soundPlayer = null;
     }
 }

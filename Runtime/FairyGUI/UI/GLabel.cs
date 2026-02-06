@@ -225,6 +225,8 @@ namespace FairyGUI
                         NAudioClip audioClip = UIPackage.GetItemAssetByURL(sound) as NAudioClip;
                         if (audioClip != null && audioClip.nativeClip != null)
                             Stage.inst.PlayOneShotSound(audioClip.nativeClip, volumeScale);
+                        else if (UIConfig.soundPlayer != null)
+                            UIConfig.soundPlayer(sound, volumeScale);
                     });
                 }
                 else
