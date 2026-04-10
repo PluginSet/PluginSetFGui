@@ -518,9 +518,11 @@ namespace FairyGUI
             if (buffer.version >= 5)
             {
                 str = buffer.ReadS();
-                soundRes = str;
                 if (str != null)
+                {
                     sound = UIPackage.GetItemAssetByURL(str) as NAudioClip;
+                    soundRes = str;
+                }
                 soundVolumeScale = buffer.ReadFloat();
             }
         }
@@ -625,10 +627,10 @@ namespace FairyGUI
 
         private void __click()
         {
-            if (sound != null && sound.nativeClip != null)
-                Stage.inst.PlayOneShotSound(sound.nativeClip, soundVolumeScale);
-            else if (!string.IsNullOrEmpty(soundRes) && UIConfig.soundPlayer != null)
+            if (!string.IsNullOrEmpty(soundRes) && UIConfig.soundPlayer != null)
                 UIConfig.soundPlayer(soundRes, soundVolumeScale);
+            else if (sound != null && sound.nativeClip != null)
+                Stage.inst.PlayOneShotSound(sound.nativeClip, soundVolumeScale);
         }
     }
 }

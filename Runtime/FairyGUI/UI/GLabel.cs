@@ -222,11 +222,16 @@ namespace FairyGUI
                     float volumeScale = buffer.ReadFloat();
                     displayObject.onClick.Add(() =>
                     {
-                        NAudioClip audioClip = UIPackage.GetItemAssetByURL(sound) as NAudioClip;
-                        if (audioClip != null && audioClip.nativeClip != null)
-                            Stage.inst.PlayOneShotSound(audioClip.nativeClip, volumeScale);
-                        else if (UIConfig.soundPlayer != null)
+                        if (UIConfig.soundPlayer != null)
+                        {
                             UIConfig.soundPlayer(sound, volumeScale);
+                        }
+                        else
+                        {
+                            NAudioClip audioClip = UIPackage.GetItemAssetByURL(sound) as NAudioClip;
+                            if (audioClip != null && audioClip.nativeClip != null)
+                                Stage.inst.PlayOneShotSound(audioClip.nativeClip, volumeScale);
+                        }
                     });
                 }
                 else

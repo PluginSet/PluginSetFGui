@@ -265,7 +265,10 @@ namespace FairyGUI
                 {
                     case ConfigKey.ButtonSound:
                         if (Application.isPlaying)
+                        {
                             UIConfig.buttonSound = UIPackage.GetItemAssetByURL(value.s) as NAudioClip;
+                            UIConfig.buttonSoundRes = value.s;
+                        }
                         break;
 
                     case ConfigKey.ButtonSoundVolumeScale:

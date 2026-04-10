@@ -1379,10 +1379,10 @@ namespace FairyGUI
                                 value.audioClip = UIConfig.soundLoader(value.sound);
                         }
 
-                        if (value.audioClip != null && value.audioClip.nativeClip != null)
-                            Stage.inst.PlayOneShotSound(value.audioClip.nativeClip, value.volume);
-                        else if (UIConfig.soundPlayer != null)
+                        if (UIConfig.soundPlayer != null)
                             UIConfig.soundPlayer(value.sound, value.volume);
+                        else if (value.audioClip != null && value.audioClip.nativeClip != null)
+                            Stage.inst.PlayOneShotSound(value.audioClip.nativeClip, value.volume);
                     }
                     break;
 

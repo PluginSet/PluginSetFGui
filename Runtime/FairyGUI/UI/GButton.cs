@@ -473,8 +473,10 @@ namespace FairyGUI
             _mode = (ButtonMode)buffer.ReadByte();
             string str = buffer.ReadS();
             if (str != null)
+            {
                 sound = UIPackage.GetItemAssetByURL(str) as NAudioClip;
-            soundRes = str;
+                soundRes = str;
+            }
             soundVolumeScale = buffer.ReadFloat();
             _downEffect = buffer.ReadByte();
             _downEffectValue = buffer.ReadFloat();
@@ -535,9 +537,11 @@ namespace FairyGUI
             _relatedPageId = buffer.ReadS();
 
             str = buffer.ReadS();
-            soundRes = str;
             if (str != null)
+            {
                 sound = UIPackage.GetItemAssetByURL(str) as NAudioClip;
+                soundRes = str;
+            }
             if (buffer.ReadBool())
                 soundVolumeScale = buffer.ReadFloat();
 
@@ -633,10 +637,10 @@ namespace FairyGUI
 
         private void __click()
         {
-            if (sound != null && sound.nativeClip != null)
-                Stage.inst.PlayOneShotSound(sound.nativeClip, soundVolumeScale);
-            else if (!string.IsNullOrEmpty(soundRes) && UIConfig.soundPlayer != null)
+            if (!string.IsNullOrEmpty(soundRes) && UIConfig.soundPlayer != null)
                 UIConfig.soundPlayer(soundRes, soundVolumeScale);
+            else if (sound != null && sound.nativeClip != null)
+                Stage.inst.PlayOneShotSound(sound.nativeClip, soundVolumeScale);
 
             if (_mode == ButtonMode.Check)
             {
