@@ -1,9 +1,11 @@
 {
     "name": "PluginSet.FairyGUI",
+    "rootNamespace": "",
     "references": [
         "PluginSet.Core",
         "PluginSet.Tolua",
-        "spine-unity"
+        "spine-unity",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
